@@ -11,6 +11,8 @@ from reg import *
 import pygame as pg
 import pygame.locals
 
+import entity
+
 
 class DummyObject(object):
     
@@ -37,6 +39,7 @@ class DummyObject(object):
 class Game(object):
     
     def __init__(self):
+        global player
         self.screen = pg.display.get_surface()
         self.pressed_key = None
         self.mouse_pressed = None
@@ -44,22 +47,27 @@ class Game(object):
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates
         
+        player = entity.Player()
+        
         for i in range(5):
-            queue.append(DummyObject((20,50,20), (200 + i * 110,110)))
+            queue.append(entity.Creature((20,50,20), (200 + i * 110,110)))
         
     def controls(self):
         
-        keys = pg.key.get_pressed()
+        #keys = pg.key.get_pressed()
         
         
         def pressed(key):
-            return self.pressed_key == key or keys[key]
+            return self.pressed_key == key #or keys[key]
         
         def m_pressed(mouse):
             return self.mouse_pressed == mouse 
         
         if pressed(pg.K_j):
             print "Emily Loves James"
+        if pressed(pg.K_q):
+            entity.combat(player, queue[0]) 
+            entity.combat(queue[0], player)   
         self.pressed_key = None
      
         if m_pressed(1):
@@ -82,7 +90,13 @@ class Game(object):
             
             
             for thing in queue:
-                pg.draw.rect(self.screen, thing.colour, thing.rect)
+                if thing.dead:
+                    queue.remove(thing)
+                    print "creature has died"
+                    if len(queue) <= 0:
+                        print "winner, winner, chicken dinner"
+                else:
+                    pg.draw.rect(self.screen, thing.colour, thing.rect)
             clock.tick(15)
             pg.display.flip()
             
