@@ -69,7 +69,10 @@ class Game(object):
             print "Emily Loves James"
         if pressed(pg.K_q):
             entity.combat(player, queue[0]) 
-            entity.combat(queue[0], player)   
+            entity.combat(queue[0], player) 
+            
+        if pressed(pg.K_h):
+            entity.heal(player, 10)
         self.pressed_key = None
      
         if m_pressed(1):
@@ -100,6 +103,7 @@ class Game(object):
             
             pg.draw.rect(self.screen, player.colour, player.rect)
             
+            
             for thing in queue:
                 if thing.dead:
                     queue.remove(thing)
@@ -114,6 +118,7 @@ class Game(object):
                     
                     
             clock.tick(15)
+            
             pg.display.flip()
             
             
