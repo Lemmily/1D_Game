@@ -18,6 +18,13 @@ class Inventory(object):
         else:
             return False
     
+    def pick_up(self, _type, amount = 1):
+        if self.contents.has_key(_type):
+            self.contents[_type] += amount
+        else:
+            self.contents[_type] = amount
+    
+    
     def has(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:
             return True
@@ -31,7 +38,12 @@ class Inventory(object):
             return True
         else:
             return False
-        
+    
+    def count(self, _type):
+        if self.contents.has_key(_type) and self.contents[_type] > 0:
+            return self.contents[_type]
+        else:
+            return 0
         
     
     

@@ -6,6 +6,8 @@ Created on 12 Apr 2014
 import pygame as pg
 from random import randint
 
+from inventory import *
+
 class Entity(object):
     
     def __init__(self, colour, pos):
@@ -65,7 +67,8 @@ class Player(Entity):
         self.max_hp = 100
         self.mana = 12
         self.max_mana = 12
-        
+        self.inventory = Inventory()
+        self.inventory.pick_up("hp potion", 3)
        
        
        
@@ -105,10 +108,14 @@ def heal(entity, amount):
     entity.update_health(amount)
     
     
-#TODO: write a "use item" function
-#def use(entity, item_type):
-#    if entity.inventory:
-#        entity.
+def use(entity, item_type):
+    if entity.inventory:
+        if entity.inventory.get(item_type):
+            return True
+        else:
+            return False
+    else:
+        return False
         
         
         

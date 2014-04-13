@@ -14,6 +14,7 @@ import pygame.locals
 import entity
 
 
+gamefont = None
 
 class DummyObject(object):
     
@@ -22,7 +23,6 @@ class DummyObject(object):
         self.size = (100,100)
         self.pos = pos
         self.rect = pg.Rect(self.pos,self.size)
-        
         
         
         self.melee_range = 1
@@ -36,8 +36,10 @@ class DummyObject(object):
         #do somethign to notify I need to be removed from queue??!
         print "I gots killed"
 
-
-
+def attack_next():
+    if len(queue) > 0:
+        entity.combat(player, queue[0]) 
+        entity.combat(queue[0], player) 
 class Game(object):
     
     def __init__(self):
@@ -68,18 +70,19 @@ class Game(object):
         if pressed(pg.K_j):
             print "Emily Loves James"
         if pressed(pg.K_q):
-            entity.combat(player, queue[0]) 
-            entity.combat(queue[0], player) 
+            attack_next()
             
         if pressed(pg.K_h):
-            entity.heal(player, 10)
+            if entity.use(player, "hp potion"):
+                entity.heal(player, 10)
         self.pressed_key = None
      
         if m_pressed(1):
             for thing in queue:
-                if thing.rect.collidepoint(pg.mouse.get_pos()):
+                if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     entity.combat(player, thing) 
                     entity.combat(thing, player)   
+                    break
         self.mouse_pressed = None
         
         
@@ -100,9 +103,11 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            
+            label = gamefont.render("Health: " + str(player.hp), 1, (255,255,0))
+            self.screen.blit(label, (10, 10))
+            label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
+            self.screen.blit(label, (10, 40))
             pg.draw.rect(self.screen, player.colour, player.rect)
-            
             
             for thing in queue:
                 if thing.dead:
@@ -113,7 +118,9 @@ class Game(object):
                         break
                     
             for i in range(len(queue)):
-                thing.rect.left = 200 + i*110
+                thing = queue[i]
+                thing.rect.x = 200 + i*110
+                thing.pos = (200 + i*110, 110)
                 pg.draw.rect(self.screen, thing.colour, thing.rect)
                     
                     
@@ -131,13 +138,19 @@ class Game(object):
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     self.mouse_pressed = event.button
                     self.mouse_pos = event.pos
+#                    print event.pos
+#                    for thing in queue:
+#                        print thing.pos
                 
     
 
 
 if __name__=='__main__':
-    pygame.init()
-    pygame.display.set_mode((1024,768))
+    pg.init()
+    pg.display.set_mode((1024,768))
+    pg.display.set_caption('1D_RL')
+    #load font
+    gamefont = pygame.font.SysFont("monospace", 15)
     Game().main()
     
     
