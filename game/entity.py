@@ -36,7 +36,7 @@ class Entity(object):
     def check_alive(self):
         if self.get_health() <= 0:
             self.dead = True
-            
+        
 
 class Player(Entity):
     
