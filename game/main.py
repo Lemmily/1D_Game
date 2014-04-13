@@ -12,6 +12,7 @@ import pygame as pg
 import pygame.locals
 
 
+
 class DummyObject(object):
     
     def __init__(self, colour, pos):
@@ -19,6 +20,7 @@ class DummyObject(object):
         self.size = (100,100)
         self.pos = pos
         self.rect = pg.Rect(self.pos,self.size)
+        
         
         
         self.melee_range = 1
@@ -49,11 +51,8 @@ class Game(object):
         
     def controls(self):
         
-        keys = pg.key.get_pressed()
-        
-        
         def pressed(key):
-            return self.pressed_key == key or keys[key]
+            return self.pressed_key == key #or keys[key]
         
         def m_pressed(mouse):
             return self.mouse_pressed == mouse 
@@ -67,7 +66,12 @@ class Game(object):
                 if thing.rect.collidepoint(pg.mouse.get_pos()):
                     thing.interact(player)
         self.mouse_pressed = None
+        
+        
+  
     def main(self):
+        
+        
         clock = pg.time.Clock()
         
         
@@ -78,11 +82,17 @@ class Game(object):
             black = 0, 0, 0
             self.screen.fill(black)
             
+            
+            
+            #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
             
             for thing in queue:
-                pg.draw.rect(self.screen, thing.colour, thing.rect)
+                if thing.dead:
+                    queue.remove(thing)
+                else:
+                    pg.draw.rect(self.screen, thing.colour, thing.rect)
             clock.tick(15)
             pg.display.flip()
             
