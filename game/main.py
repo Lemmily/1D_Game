@@ -51,7 +51,7 @@ class Game(object):
         
         player = entity.Player()
         
-        for i in range(5):
+        for i in range(7):
             queue.append(entity.Creature((20,50,20), (200 + i * 110,110)))
         
     def controls(self):
@@ -75,13 +75,14 @@ class Game(object):
         if m_pressed(1):
             for thing in queue:
                 if thing.rect.collidepoint(pg.mouse.get_pos()):
-                    thing.interact(player)
+                    entity.combat(player, thing) 
+                    entity.combat(thing, player)   
         self.mouse_pressed = None
         
         
   
     def main(self):
-        
+        global player
         
         clock = pg.time.Clock()
         
@@ -93,11 +94,11 @@ class Game(object):
             black = 0, 0, 0
             self.screen.fill(black)
             
-            
-            
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
+            
+            pg.draw.rect(self.screen, player.colour, player.rect)
             
             for thing in queue:
                 if thing.dead:
@@ -105,8 +106,13 @@ class Game(object):
                     print "creature has died"
                     if len(queue) <= 0:
                         print "winner, winner, chicken dinner"
-                else:
-                    pg.draw.rect(self.screen, thing.colour, thing.rect)
+                        break
+                    
+            for i in range(len(queue)):
+                thing.rect.left = 200 + i*110
+                pg.draw.rect(self.screen, thing.colour, thing.rect)
+                    
+                    
             clock.tick(15)
             pg.display.flip()
             
@@ -128,3 +134,8 @@ if __name__=='__main__':
     pygame.init()
     pygame.display.set_mode((1024,768))
     Game().main()
+    
+    
+    
+    
+    
