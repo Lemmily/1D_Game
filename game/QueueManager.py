@@ -4,7 +4,7 @@ Created on 14 Apr 2014
 @author: Emily
 '''
 
-from reg import *
+from Reg import *
 
 
 class QueueManager(object):

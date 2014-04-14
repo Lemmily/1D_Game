@@ -6,7 +6,7 @@ Created on 12 Apr 2014
 import pygame as pg
 from random import randint
 
-from inventory import *
+from Inventory import *
 
 class Entity(object):
     
@@ -87,9 +87,13 @@ class Creature(Entity):
     
     def __init__(self, colour, pos):
         Entity.__init__(self, colour, pos)
+        self.action_points = 0
+        
         if randint(0,1) == 1:
             self.has_ranged = True
             self.ranged_attack_dmg = randint(1,5)
+        
+        
         
         
         
@@ -116,13 +120,13 @@ def combat(attacker, defender):
     print defender.hp, "/", attacker.hp
     
     
-def heal(entity, amount):
-    entity.update_health(amount)
+def heal(Entity, amount):
+    Entity.update_health(amount)
     
     
-def use(entity, item_type):
-    if entity.inventory:
-        if entity.inventory.get(item_type):
+def use(Entity, item_type):
+    if Entity.inventory:
+        if Entity.inventory.get(item_type):
             return True
         else:
             return False

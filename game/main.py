@@ -11,7 +11,7 @@ from reg import *
 import pygame as pg
 import pygame.locals
 
-import entity
+import Entity
 
 
 gamefont = None
@@ -41,8 +41,8 @@ class DummyObject(object):
 
 def attack_next():
     if len(queue) > 0:
-        entity.combat(player, queue[0]) 
-        entity.combat(queue[0], player) 
+        Entity.combat(player, queue[0]) 
+        Entity.combat(queue[0], player) 
         
         
 class Game(object):
@@ -56,10 +56,10 @@ class Game(object):
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates
         
-        player = entity.Player()
+        player = Entity.Player()
         
         for i in range(7):
-            queue.append(entity.Creature((20,50,20), (200 + i * 110,110)))
+            queue.append(Entity.Creature((20,50,20), (200 + i * 110,110)))
         
     def controls(self):
         
@@ -78,15 +78,15 @@ class Game(object):
             attack_next()
             
         if pressed(pg.K_h):
-            if entity.use(player, "hp potion"):
-                entity.heal(player, 10)
+            if Entity.use(player, "hp potion"):
+                Entity.heal(player, 10)
         self.pressed_key = None
      
         if m_pressed(1):
             for thing in queue:
                 if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
-                    entity.combat(player, thing) 
-                    entity.combat(thing, player)   
+                    Entity.combat(player, thing) 
+                    Entity.combat(thing, player)   
                     break
         self.mouse_pressed = None
         
