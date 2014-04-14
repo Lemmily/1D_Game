@@ -15,6 +15,9 @@ import entity
 
 
 gamefont = None
+black = 0, 0, 0
+white = 255, 255, 255
+
 
 class DummyObject(object):
     
@@ -40,6 +43,8 @@ def attack_next():
     if len(queue) > 0:
         entity.combat(player, queue[0]) 
         entity.combat(queue[0], player) 
+        
+        
 class Game(object):
     
     def __init__(self):
@@ -92,18 +97,18 @@ class Game(object):
         
         clock = pg.time.Clock()
         
-        
+        #updates screen
         pg.display.flip()
         
         # main game loop
         while not self.game_over:
-            black = 0, 0, 0
+            #clear screen
             self.screen.fill(black)
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            label = gamefont.render("Health: " + str(player.hp), 1, (255,255,0))
+            label = gamefont.render("Health: " + str(player.hp), 1, (255,255,10))
             self.screen.blit(label, (10, 10))
             label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
             self.screen.blit(label, (10, 40))
@@ -122,10 +127,14 @@ class Game(object):
                 thing.rect.x = 200 + i*110
                 thing.pos = (200 + i*110, 110)
                 pg.draw.rect(self.screen, thing.colour, thing.rect)
+                
+                #draw a health bar
+                health_per = 100/thing.max_hp * thing.hp
+                pg.draw.rect(self.screen, (100,20,20), (thing.pos[0],thing.pos[1] + 105, health_per, 20))
                     
                     
             clock.tick(15)
-            
+            #update screen with changes
             pg.display.flip()
             
             

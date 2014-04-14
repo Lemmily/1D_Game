@@ -18,14 +18,14 @@ class Entity(object):
         
         
         self.melee_attack_dmg = 4
-        self.ranged_attack_dmg = 0
+        self.ranged_attack_dmg = 1
         self.colour = colour
         self.size = (100,100)
         self.pos = pos
         self.rect = pg.Rect(self.pos,self.size)
         self.dead = False
         self.has_melee = True
-        self.has_ranged = False
+        self.has_ranged = True
         
     def update_health(self, change):
         
@@ -40,22 +40,32 @@ class Entity(object):
             return self.hp
         return False
             
+    def check_alive(self):
+        if self.get_health() <= 0:
+            self.dead = True
+            
     def update_mana(self, change):
         self.mana += change
         
+    def get_health(self):
+        return self.hp
+    
+        
+    ###### 
+    ###
+    #     Alll these below will be affected by the stats changes.
+    ###   TODO: Deploy stat changes.
+    ######
     def get_attack(self):
         return self.melee_attack_dmg    
     
     def get_ranged_damage(self):
         return self.ranged_attack_dmg
     
-    def get_health(self):
-        return self.hp
-    
-    def check_alive(self):
-        if self.get_health() <= 0:
-            self.dead = True
         
+
+    def get_range(self):
+        return 0, 1
 
 
 
@@ -99,7 +109,9 @@ def melee_attack_damage(strength):
     return strength / 2.0
 
 def combat(attacker, defender):
-    #TODO: actual combat calculations - to hits etc.
+    #TODO: actual combat calculations - to hits etc 
+    #TODO: this maybe needs to be put into queue manager? or something like that?
+    
     defender.update_health(-attacker.get_attack())
     print defender.hp, "/", attacker.hp
     
