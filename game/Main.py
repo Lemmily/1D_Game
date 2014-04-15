@@ -4,14 +4,17 @@ Created on 12 Apr 2014
 @author: james & emily
 '''
 
-import sys
-
-from Reg import *
-
+from game.QueueManager import QueueManager
+import Entity
+import Reg
 import pygame as pg
 import pygame.locals
+import sys
+#from Reg import *
 
-import Entity
+
+    
+
 
 
 gamefont = None
@@ -40,15 +43,14 @@ class DummyObject(object):
         print "I gots killed"
 
 def attack_next():
-    if len(queue) > 0:
-        Entity.combat(player, queue[0]) 
-        Entity.combat(queue[0], player) 
+    if len(Reg.queue) > 0:
+        Entity.combat(Reg.player, Reg.queue[0]) 
+        Entity.combat(Reg.queue[0], Reg.player) 
         
         
 class Game(object):
     
     def __init__(self):
-        global player
         self.screen = pg.display.get_surface()
         self.pressed_key = None
         self.mouse_pressed = None
@@ -56,10 +58,10 @@ class Game(object):
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates
         
-        player = Entity.Player()
-        
+        Reg.player = Entity.Player()
+        Reg.man_queue =     QueueManager()
         for i in range(7):
-            queue.append(Entity.Creature((20,50,20), (200 + i * 110,110)))
+            Reg.queue.append(Entity.Creature((20,50,20), (200 + i * 110,110)))
         
     def controls(self):
         
@@ -78,22 +80,22 @@ class Game(object):
             attack_next()
             
         if pressed(pg.K_h):
-            if Entity.use(player, "hp potion"):
-                Entity.heal(player, 10)
+            if Entity.use(Reg.player, "hp potion"):
+                Entity.heal(Reg.player, 10)
         self.pressed_key = None
      
         if m_pressed(1):
-            for thing in queue:
+            for thing in Reg.queue:
                 if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
-                    Entity.combat(player, thing) 
-                    Entity.combat(thing, player)   
+                    ap = Reg.player.attack_cost
+                    Entity.combat(Reg.player, thing)
+                    Reg.man_queue.enemy_turns(ap)
                     break
         self.mouse_pressed = None
         
         
   
     def main(self):
-        global player
         
         clock = pg.time.Clock()
         
@@ -108,22 +110,22 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            label = gamefont.render("Health: " + str(player.hp), 1, (255,255,10))
+            label = gamefont.render("Health: " + str(Reg.player.hp), 1, (255,255,10))
             self.screen.blit(label, (10, 10))
-            label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
+            label = gamefont.render("Health Potions: " + str(Reg.player.inventory.count("hp potion")), 1, (255,255,0))
             self.screen.blit(label, (10, 40))
-            pg.draw.rect(self.screen, player.colour, player.rect)
+            pg.draw.rect(self.screen, Reg.player.colour, Reg.player.rect)
             
-            for thing in queue:
+            for thing in Reg.queue:
                 if thing.dead:
-                    queue.remove(thing)
+                    Reg.queue.remove(thing)
                     print "creature has died"
-                    if len(queue) <= 0:
+                    if len(Reg.queue) <= 0:
                         print "winner, winner, chicken dinner"
                         break
                     
-            for i in range(len(queue)):
-                thing = queue[i]
+            for i in range(len(Reg.queue)):
+                thing = Reg.queue[i]
                 thing.rect.x = 200 + i*110
                 thing.pos = (200 + i*110, 110)
                 pg.draw.rect(self.screen, thing.colour, thing.rect)

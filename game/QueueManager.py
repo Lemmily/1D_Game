@@ -4,8 +4,7 @@ Created on 14 Apr 2014
 @author: Emily
 '''
 
-from Reg import *
-
+import Reg
 
 class QueueManager(object):
     def __init__(self):
@@ -15,13 +14,15 @@ class QueueManager(object):
         entity.add_action_points(amount)
             
             
-    def add_entity(self):
+    def add_entity(self, entity):
         #TODO: picks an object or enemy to add to the end of the queue
-        pass    
+        #for now just posts what it's given into the queue
+        Reg.queue.append(entity)
     
     def enemy_turns(self, players_action_ap):
-        for enemy in queue:
-            enemyPos = queue.index(enemy) #get enemy queue position
+        for enemy in Reg.queue:
+            
+            enemyPos = Reg.queue.index(enemy) #get enemy queue position
             
             #ask if the enemy has an action that is within range.
             #also -> an action could be to heal itself. so that would technically always in range.
@@ -31,7 +32,7 @@ class QueueManager(object):
                 enemy.add_action_points(players_action_ap)
                 
                 #enemy manages it's own AI choices? like which attack to use etc?
-                enemy.take_turn()
+                enemy.take_turn(enemyPos)
                 
                 
                 

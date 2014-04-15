@@ -8,6 +8,9 @@ from random import randint
 
 from Inventory import *
 
+
+import Reg
+
 class Entity(object):
     
     def __init__(self, colour, pos):
@@ -81,6 +84,10 @@ class Player(Entity):
         self.inventory.pick_up("hp potion", 3)
        
        
+        #TEMP: attack_cost
+        self.attack_cost = 15
+        
+        
        
         
 class Creature(Entity):
@@ -89,8 +96,12 @@ class Creature(Entity):
         Entity.__init__(self, colour, pos)
         self.action_points = 0
         
+        
+        self.melee_cost = 30
+        
         if randint(0,1) == 1:
             self.has_ranged = True
+            self.ranged_cost = 40
             self.ranged_attack_dmg = randint(1,5)
         
     def get_action_points(self):
@@ -111,7 +122,39 @@ class Creature(Entity):
         else:
             print "Error: not enough AP" 
         
+    def in_range(self, current_range):
+        if (self.has_melee and current_range <= 1) or (self.has_ranged and current_range <= 5):
+            self.do_melee_attack()
         
+    def take_turn(self, current_range):
+        #check from shortest -> longest range for now, and just do whatever it can do
+        
+        #need a way to store actions, action cost, action range
+        if current_range <= 1 and self.action_points > self.melee_cost:
+            self.do_melee_attack()
+        elif self.has_ranged and current_range <= 5 and self.action_points > self.ranged_cost:
+            self.do_ranged_attack()
+        
+        
+    def do_ranged_attack(self):
+        #TODO: possibly abstarct this back an inheritence level - currently *always* attacks player.
+        
+        #TODO: attack calculations
+        
+        if randint(0,5) <= 3:
+            damage = self.get_ranged_damage()
+            Reg.player.update_health(-damage)
+            print "Enemy swings it's sword and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
+            
+    def do_melee_attack(self):
+        #TODO: possibly abstarct this back an inheritence level - currently *always* attacks player.
+        
+        #TODO: attack calculations
+        
+        if randint(0,5) <= 3:
+            damage = self.get_attack()
+            Reg.player.update_health(-damage)
+            print "Enemy fires it's bow and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
         
         
 def hp_calc(strength):
