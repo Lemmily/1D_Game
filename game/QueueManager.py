@@ -24,7 +24,7 @@ class QueueManager(object):
             enemyPos = queue.index(enemy) #get enemy queue position
             
             #ask if the enemy has an action that is within range.
-            #also -> an action could be to heal itself. so that's always in range
+            #also -> an action could be to heal itself. so that would technically always in range.
             if enemy.in_range(enemyPos): 
                 
                 #TODO: does the enemy receive the ap before or after their move? doing before for now.
