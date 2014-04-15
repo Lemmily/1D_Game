@@ -93,8 +93,23 @@ class Creature(Entity):
             self.has_ranged = True
             self.ranged_attack_dmg = randint(1,5)
         
+    def get_action_points(self):
+        return self.action_points
+    
+    def add_action_points(self, ap):
+        self.action_points += ap
         
-        
+    def check_action_points(self, cost):
+        if cost <= self.action_points:
+            return True
+        else:
+            return False    
+    
+    def use_action_points(self, cost):
+        if self.check_action_points(cost):
+            self.action_points -= cost
+        else:
+            print "Error: not enough AP" 
         
         
         
