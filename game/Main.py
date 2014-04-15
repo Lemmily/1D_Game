@@ -6,7 +6,7 @@ Created on 12 Apr 2014
 
 import sys
 
-from reg import *
+from Reg import *
 
 import pygame as pg
 import pygame.locals
