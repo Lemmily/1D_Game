@@ -19,6 +19,8 @@ import sys
 gamefont = None
 black = 0, 0, 0
 white = 255, 255, 255
+
+
 ############################]
 # 
 # 
@@ -184,7 +186,7 @@ class Game(object):
                 Entity.heal(player, 10)
         self.pressed_key = None
      
-        if m_pressed(1):
+        if m_pressed(1): #1 = mouse button 1
             for thing in queue:
                 if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     ap = player.attack_cost
@@ -215,6 +217,7 @@ class Game(object):
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
+            
             
             for thing in queue:
                 if thing.dead:
@@ -257,7 +260,7 @@ def write_health(game):
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
-    pg.draw.rect(game.screen, player.colour, player.rect)
+    
     
 
 if __name__=='__main__':

@@ -34,5 +34,6 @@ class QueueManager(object):
                 #enemy manages it's own AI choices? like which attack to use etc?
                 enemy.take_turn(enemyPos)
                 
+            
                 
                 
