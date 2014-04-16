@@ -213,12 +213,13 @@ class Game(object):
 #             dirty = self.sprites.draw(self.screen) #test
             
             write_health(self) #text print out.
-            
+            write_mana(self)
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
+            pg.draw.rect(self.screen, player.colour, player.rect)
             
-            
+            #TODO: needs to me moved to queue manager?
             for thing in queue:
                 if thing.dead:
                     queue.remove(thing)
@@ -262,6 +263,11 @@ def write_health(game):
     game.screen.blit(label, (10, 40))
     
     
+def write_mana(game):
+    label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
+    game.screen.blit(label, (180, 10))
+    label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
+    game.screen.blit(label, (180, 40))
 
 if __name__=='__main__':
     SPRITE_CACHE = TileCache()
