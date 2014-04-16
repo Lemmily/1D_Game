@@ -1,7 +1,7 @@
 '''
 Created on 12 Apr 2014
 
-@author: james
+@author: James & Emily
 '''
 import pygame as pg
 from random import randint
@@ -28,7 +28,7 @@ class Entity(object):
         self.rect = pg.Rect(self.pos,self.size)
         self.dead = False
         self.has_melee = True
-        self.has_ranged = True
+        self.has_ranged = False
         
     def update_health(self, change):
         
@@ -94,7 +94,7 @@ class Creature(Entity):
     
     def __init__(self, colour, pos):
         Entity.__init__(self, colour, pos)
-        self.action_points = 0
+        self.action_points = randint(0,30)
         
         
         self.melee_cost = 30
@@ -124,38 +124,45 @@ class Creature(Entity):
         
     def in_range(self, current_range):
         if (self.has_melee and current_range <= 1) or (self.has_ranged and current_range <= 5):
-            self.do_melee_attack()
+            return True
+        else:
+            return False
         
-    def take_turn(self, current_range):
+    def take_turn(self, q_position):
+        #TODO: decision making.
         #check from shortest -> longest range for now, and just do whatever it can do
         
         #need a way to store actions, action cost, action range
-        if current_range <= 1 and self.action_points > self.melee_cost:
-            self.do_melee_attack()
-        elif self.has_ranged and current_range <= 5 and self.action_points > self.ranged_cost:
-            self.do_ranged_attack()
+        if q_position <= 1 and self.action_points > self.melee_cost:
+            self.do_melee_attack(q_position)
+        elif self.has_ranged and q_position <= 5 and self.action_points > self.ranged_cost:
+            self.do_ranged_attack(q_position)
         
         
-    def do_ranged_attack(self):
+    def do_ranged_attack(self, q_position):
         #TODO: possibly abstarct this back an inheritence level - currently *always* attacks player.
         
         #TODO: attack calculations
-        
+        self.use_action_points(self.ranged_cost)
         if randint(0,5) <= 3:
             damage = self.get_ranged_damage()
             Reg.player.update_health(-damage)
-            print "Enemy swings it's sword and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
+            print "Enemy " + str(q_position) + " fires it's bow and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
+        else:
+            print "Enemy " + str(q_position) + " fumbles its attack!"
             
-    def do_melee_attack(self):
+    def do_melee_attack(self, q_position):
         #TODO: possibly abstarct this back an inheritence level - currently *always* attacks player.
         
         #TODO: attack calculations
-        
+        self.use_action_points(self.melee_cost)
         if randint(0,5) <= 3:
             damage = self.get_attack()
             Reg.player.update_health(-damage)
-            print "Enemy fires it's bow and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
-        
+            print "Enemy " + str(q_position) + " swings it's sword and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp)
+            
+        else:
+            print "Enemy " + str(q_position) + " fumbles its attack!"
         
 def hp_calc(strength):
     return strength * 2
