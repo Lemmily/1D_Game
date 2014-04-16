@@ -19,7 +19,7 @@ class Entity(object):
         self.mana = 10
         self.max_mana = 10
         
-        
+
         self.melee_attack_dmg = 4
         self.ranged_attack_dmg = 1
         self.colour = colour
@@ -76,10 +76,12 @@ class Player(Entity):
     def __init__(self):
         Entity.__init__(self, (255,255,255), (10,110))
 
-        self.hp = 100
-        self.max_hp = 100
-        self.mana = 12
-        self.max_mana = 12
+        self.stats = Stats()
+        self.max_hp = self.stats.attr["con"].value*11
+        self.hp = self.max_hp
+        self.max_mana = self.stats.attr["int"].value*11
+        self.mana = self.max_mana
+        
         self.inventory = Inventory()
         self.inventory.pick_up("hp potion", 3)
        
@@ -94,8 +96,9 @@ class Creature(Entity):
     
     def __init__(self, colour, pos):
         Entity.__init__(self, colour, pos)
-        self.action_points = randint(0,30)
         
+        self.stats = StatsCreature()
+        self.action_points = randint(0,30)  #will start with one attack worth of AP
         
         self.melee_cost = 30
         
@@ -163,20 +166,42 @@ class Creature(Entity):
             
         else:
             print "Enemy " + str(q_position) + " fumbles its attack!"
+            
+            
+attributes = ["str","con","dex","int","cha","wis", "luc"]
+            
+class Stats:
+    def __init__(self):
+        self.attr = {}
+        for stat in attributes:
+            self.attr[stat] = Attribute(stat,randint(8,14))
+            
+class StatsCreature:
+    def __init__(self):
+        self.attr = {}
+        for stat in attributes:
+            self.attr[stat] = Attribute(stat,randint(3,9))            
+            
+class Attribute():
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
         
-def hp_calc(strength):
-    return strength * 2
-
-def mp_calc(intelligence):
-    return intelligence * 2
-
-# time between attacks, decreases as dexterity increases
-#def att_speed_calc(dexterity):
-#    return att_speed_var / dexterity 
-
-def melee_attack_damage(strength):
-    return strength / 2.0
-
+        @property
+        def modifier(self):
+            if self.value <= 1: return -5
+            elif self.value < 4: return -4
+            elif self.value < 6: return -3
+            elif self.value < 8: return -2
+            elif self.value < 10: return -1
+            elif self.value < 12: return 0
+            elif self.value < 14: return 1
+            elif self.value < 16: return 2
+            elif self.value < 18: return 3
+            elif self.value <= 20: return 5
+            elif self.value > 20: return 6
+            
+        
 def combat(attacker, defender):
     #TODO: actual combat calculations - to hits etc 
     #TODO: this maybe needs to be put into queue manager? or something like that?
