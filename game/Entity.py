@@ -2,6 +2,7 @@
 Created on 12 Apr 2014
 
 @author: James & Emily
+extendcombat branch test
 '''
 import pygame as pg
 from random import randint
