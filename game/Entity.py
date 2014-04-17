@@ -15,10 +15,10 @@ import Reg
 class Entity(object):
     
     def __init__(self, colour, pos):
-        self.hp = 10
         self.max_hp = 10
-        self.mana = 10
+        self.hp = self.max_hp
         self.max_mana = 10
+        self.mana = self.max_mana
         
 
         self.melee_attack_dmg = 4

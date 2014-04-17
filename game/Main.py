@@ -260,6 +260,8 @@ def write_health(game):
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
+    #pg.draw.rect(game.screen, (100,20,20), (player.pos[0], player.pos[1] + 105, R.player.hp/R.player.max_hp*100.0, 20))
+
     
 def write_mana(game):
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
