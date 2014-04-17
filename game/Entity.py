@@ -83,12 +83,16 @@ class Player(Entity):
         self.max_mana = self.stats.attr["int"].value*11
         self.mana = self.max_mana
         
+        self.melee_attack_dmg = self.stats.attr["str"].value/2
+        self.ranged_attack_dmg = self.stats.attr["dex"].value/3
+        
         self.inventory = Inventory()
         self.inventory.pick_up("hp potion", 3)
        
        
         #TEMP: attack_cost
         self.attack_cost = 15
+        self.ranged_attack_cost = 25
         
         
        
@@ -208,6 +212,10 @@ def combat(attacker, defender):
     #TODO: this maybe needs to be put into queue manager? or something like that?
     
     defender.update_health(-attacker.get_attack())
+    print defender.hp, "/", attacker.hp
+    
+def ranged_combat(attacker, defender):
+    defender.update_health(-attacker.get_ranged_damage())
     print defender.hp, "/", attacker.hp
     
     

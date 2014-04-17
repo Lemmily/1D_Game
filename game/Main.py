@@ -187,9 +187,17 @@ class Game(object):
         if m_pressed(1):
             for thing in queue:
                 if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
-                    ap = player.attack_cost
-                    Entity.combat(player, thing)
-                    man_queue.enemy_turns(ap)
+                    
+                    if R.queue.index(thing) == 0:
+                        ap = player.attack_cost
+                        Entity.combat(player, thing)
+                        man_queue.enemy_turns(ap)
+                        break
+                    else:
+                        ap = player.ranged_attack_cost
+                        Entity.ranged_combat(player, thing)
+                        man_queue.enemy_turns(ap)
+                        break
                     break
         self.mouse_pressed = None
         
