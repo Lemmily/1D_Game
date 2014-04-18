@@ -11,9 +11,12 @@ MAP_TILE_HEIGHT = 100
 
 player = None
 
-queue = []
 
 man_queue = None
 
 
 tes = None
+
+
+
+SPRITE_CACHE = None

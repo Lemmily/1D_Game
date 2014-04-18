@@ -9,11 +9,124 @@ from random import randint
 from Inventory import *
 
 
-import Reg
+import Reg as R
 
-class Entity(object):
+
+class TileCache:
+    """Load the tilesets lazily into global cache"""
     
-    def __init__(self, colour, pos):
+    def __init__(self, width = R.tile_size, height = None):
+        self.width = width
+        self.height = height or width
+        self.cache = {}
+        
+    
+    def __getitem__(self, filename):
+        """Return a table of files, load it from disk if needed"""
+        
+        key = (filename, self.width, self.height)
+        try:
+            return self.cache[key]
+        except KeyError:
+            tile_table = self._load_tile_table(filename, self.width, self.height)
+            
+            self.cache[key] = tile_table
+            return tile_table
+    
+    
+    def _load_tile_table(self, filename, width, height):
+        """Load an image and split it into tiles."""
+        image = pg.image.load(filename).convert_alpha()
+        #image.
+        image_width, image_height = image.get_size()
+        tile_table = []
+        for tile_x in range(0, image_width/width):
+            line = []
+            tile_table.append(line)
+            for tile_y in range(0, image_height/height):
+                rect = (tile_x*width, tile_y*height, width, height)
+                line.append(image.subsurface(rect))
+        return tile_table
+    
+class SortedUpdates(pg.sprite.RenderUpdates):
+    """A sprite group that sorts them by depth."""
+
+    def sprites(self):
+        """The list of sprites in the group, sorted by depth."""
+
+        return sorted(self.spritedict.keys(), key=lambda sprite: sprite.depth)
+
+
+class Sprite(pg.sprite.Sprite):
+    is_player = False
+    def __init__(self, pos=(0,0), frames=None):
+        super(Sprite, self).__init__()
+        self.frames = frames
+        self.image = frames[0][0]
+        self.rect = self.image.get_rect()
+        self.animation = None #self.stand_animation()
+        self.pos = pos
+        
+    def stand_animation(self):
+        while True:
+            for frame in self.frames[0]:
+                self.image = frame
+                yield None
+                yield None
+                
+    def update(self, *args):
+        if self.animation is not None:
+            self.animation.next()
+        
+    def _get_pos(self):
+        """check current pos of sprite on map"""
+        
+        return self.pos[0]*R.MAP_TILE_WIDTH, self.pos[1]*R.MAP_TILE_WIDTH 
+        #return (self.rect.midbottom[0]-R.MAP_TILE_WIDTH/2)/R.MAP_TILE_WIDTH, (self.rect.midbottom[1]-R.MAP_TILE_HEIGHT)/R.MAP_TILE_HEIGHT
+    
+    def _set_pos(self, pos):
+        """Set the position and depth of the sprite on the map."""
+
+        self.rect.topleft = 10 + pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH  
+        
+        self.depth = 0 #self.rect.midbottom[1]
+
+    #define the property pos and let it have the above getters and setters.
+    pos = property(_get_pos, _set_pos)
+
+    def move(self, dx, dy):
+        """Change the position of the sprite on screen."""
+
+        self.rect.move_ip(dx, dy)
+        self.depth = self.rect.midbottom[1]
+ 
+ 
+class DummyObject(Sprite):
+    def __init__(self, frames = None, pos=(0,0), sprite = [0,0]):
+        Sprite.__init__(self, pos, self.frames)
+        self.image = self.frames[sprite[0]][sprite[1]]
+        topleft = self.rect.topleft
+        self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = topleft
+        
+        
+class Entity(Sprite):
+    
+    def __init__(self, frames = None, pos=(0,0), sprite = [0,0]):
+        Sprite.__init__(self, pos, frames)
+        ##################
+        ##
+        ## SPRITE THINGS
+        ##
+        ####################
+        self.image = self.frames[sprite[0]][sprite[1]]
+        topleft = self.rect.topleft
+        self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = topleft
+        
+        
         self.hp = 10
         self.max_hp = 10
         self.mana = 10
@@ -22,10 +135,10 @@ class Entity(object):
 
         self.melee_attack_dmg = 4
         self.ranged_attack_dmg = 1
-        self.colour = colour
-        self.size = (100,100)
-        self.pos = pos
-        self.rect = pg.Rect(self.pos,self.size)
+#         self.colour = colour
+#         self.size = (100,100)
+#         self.pos = pos
+#         self.rect = pg.Rect(self.pos,self.size)
         self.dead = False
         self.has_melee = True
         self.has_ranged = False
@@ -74,9 +187,9 @@ class Entity(object):
 
 class Player(Entity):
     def __init__(self):
-        Entity.__init__(self, (255,255,255), (10,110))
+        Entity.__init__(self, frames = R.SPRITE_CACHE["data/monsters_x24.png"], pos=(0,1), sprite = [1,0])
 
-        self.stats = Stats()
+        self.stats = Stats(8,14)
         self.max_hp = self.stats.attr["con"].value*11
         self.hp = self.max_hp
         self.max_mana = self.stats.attr["int"].value*11
@@ -94,10 +207,10 @@ class Player(Entity):
         
 class Creature(Entity):
     
-    def __init__(self, colour, pos):
-        Entity.__init__(self, colour, pos)
+    def __init__(self, sprite_loc, pos):
+        Entity.__init__(self, R.SPRITE_CACHE["data/monsters_x24.png"], pos, sprite_loc)
         
-        self.stats = StatsCreature()
+        self.stats = Stats(3,9)
         self.action_points = randint(0,30)  #will start with one attack worth of AP
         
         self.melee_cost = 30
@@ -149,8 +262,8 @@ class Creature(Entity):
         self.use_action_points(self.ranged_cost)
         if randint(0,5) <= 3:
             damage = self.get_ranged_damage()
-            Reg.player.update_health(-damage)
-            print "Enemy " + str(q_position) + " fires it's bow and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp) 
+            R.player.update_health(-damage)
+            print "Enemy " + str(q_position) + " fires it's bow and does " + str(damage)+ " leaving the player with " + str(R.player.hp) 
         else:
             print "Enemy " + str(q_position) + " fumbles its attack!"
             
@@ -161,8 +274,8 @@ class Creature(Entity):
         self.use_action_points(self.melee_cost)
         if randint(0,5) <= 3:
             damage = self.get_attack()
-            Reg.player.update_health(-damage)
-            print "Enemy " + str(q_position) + " swings it's sword and does " + str(damage)+ " leaving the player with " + str(Reg.player.hp)
+            R.player.update_health(-damage)
+            print "Enemy " + str(q_position) + " swings it's sword and does " + str(damage)+ " leaving the player with " + str(R.player.hp)
             
         else:
             print "Enemy " + str(q_position) + " fumbles its attack!"
@@ -171,16 +284,10 @@ class Creature(Entity):
 attributes = ["str","con","dex","int","cha","wis", "luc"]
             
 class Stats:
-    def __init__(self):
+    def __init__(self, min, max):
         self.attr = {}
         for stat in attributes:
-            self.attr[stat] = Attribute(stat,randint(8,14))
-            
-class StatsCreature:
-    def __init__(self):
-        self.attr = {}
-        for stat in attributes:
-            self.attr[stat] = Attribute(stat,randint(3,9))            
+            self.attr[stat] = Attribute(stat,randint(min,max))
             
 class Attribute():
     def __init__(self, name, value):
