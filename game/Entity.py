@@ -90,9 +90,9 @@ class Player(Entity):
         self.inventory.pick_up("hp potion", 3)
        
        
-        #TEMP: attack_cost
-        self.attack_cost = 15
-        self.ranged_attack_cost = 25
+        #TEMP: base_attack_cost
+        self.base_attack_cost = 150
+        self.base_ranged_attack_cost = 300
         
         
        
@@ -103,6 +103,10 @@ class Creature(Entity):
         Entity.__init__(self, colour, pos)
         
         self.stats = StatsCreature()
+        self.max_hp = self.stats.attr["con"].value*11
+        self.hp = self.max_hp
+        self.max_mana = self.stats.attr["int"].value*11
+        self.mana = self.max_mana
         self.action_points = randint(0,30)  #will start with one attack worth of AP
         
         self.melee_cost = 30
@@ -210,13 +214,39 @@ class Attribute():
 def combat(attacker, defender):
     #TODO: actual combat calculations - to hits etc 
     #TODO: this maybe needs to be put into queue manager? or something like that?
-    
-    defender.update_health(-attacker.get_attack())
-    print defender.hp, "/", attacker.hp
+    #damage = attacker damage + randint from weapon + weapon skill?
+    crit = False
+    crit_dmg = 0
+    if randint(1,100)+ attacker.stats.attr["dex"].value > 90:
+        crit = True
+        crit_dmg = attacker.get_ranged_damage()*10
+    if crit:
+        damage = attacker.get_attack() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        print "You swing your weapon and crit, dealing " + str(damage) + " leaving the creature on " + str(defender.hp) 
+    else:
+        damage = attacker.get_attack() + randint(1,10)
+        defender.update_health(-damage)
+    #print defender.hp, "/", attacker.hp
+        print "You swing your weapon, dealing " + str(damage) + " leaving the creature on " + str(defender.hp) 
     
 def ranged_combat(attacker, defender):
-    defender.update_health(-attacker.get_ranged_damage())
-    print defender.hp, "/", attacker.hp
+    #damage = attacker damage + randint from weapon + crit chance + weapon skill?
+    crit = False
+    crit_dmg = 0
+    if randint(1,100)+ attacker.stats.attr["dex"].value > 90:
+        crit = True
+        crit_dmg = attacker.get_ranged_damage()*10
+    if crit:
+        damage = attacker.get_ranged_damage() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        #print defender.hp, "/", attacker.hp
+        print "You fire your bow and crit, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp) 
+    else:
+        damage = attacker.get_ranged_damage() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        #print defender.hp, "/", attacker.hp
+        print "You fire your bow, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp)
     
     
 def heal(Entity, amount):
@@ -231,13 +261,5 @@ def use(Entity, item_type):
             return False
     else:
         return False
-        
-        
-        
-        
-        
-        
-    
-def ranged_combat(attacker, defender):
-    defender.update_health(-attacker.get_ranged_damage())    
+          
 

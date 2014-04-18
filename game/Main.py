@@ -126,7 +126,7 @@ class DummyObject(Sprite):
         
 def attack_next():
     if len(queue) > 0:
-        ap = player.attack_cost
+        ap = player.base_attack_cost
         Entity.combat(player, queue[0])
         man_queue.enemy_turns(ap)
         return True
@@ -150,6 +150,8 @@ class Game(object):
         
         sprite = DummyObject()
         self.sprites.add(sprite)
+        
+        self.ap = 0
         
         self.background = pygame.Surface((1024, 768))
         self.background.fill(black)
@@ -189,14 +191,16 @@ class Game(object):
                 if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     
                     if R.queue.index(thing) == 0:
-                        ap = player.attack_cost
+                        ap = player.base_attack_cost/player.stats.attr["dex"].value
                         Entity.combat(player, thing)
                         man_queue.enemy_turns(ap)
+                        self.ap += ap
                         break
                     else:
-                        ap = player.ranged_attack_cost
+                        ap = player.base_ranged_attack_cost/player.stats.attr["dex"].value
                         Entity.ranged_combat(player, thing)
                         man_queue.enemy_turns(ap)
+                        self.ap += ap
                         break
                     break
         self.mouse_pressed = None
@@ -220,6 +224,7 @@ class Game(object):
             
             write_health(self) #text print out.
             write_mana(self)
+            write_ap(self)
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
@@ -242,7 +247,7 @@ class Game(object):
                 pg.draw.rect(self.screen, thing.colour, thing.rect)
                 
                 #draw a health bar
-                health_per = 100/thing.max_hp * thing.hp
+                health_per = 100.0/thing.max_hp * thing.hp
                 pg.draw.rect(self.screen, (100,20,20), (thing.pos[0],thing.pos[1] + 105, health_per, 20))
                     
                     
@@ -268,7 +273,7 @@ def write_health(game):
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
-    #pg.draw.rect(game.screen, (100,20,20), (player.pos[0], player.pos[1] + 105, R.player.hp/R.player.max_hp*100.0, 20))
+    pg.draw.rect(game.screen, (100,20,20), (player.pos[0], player.pos[1] + 105, 100.0/player.max_hp*player.hp, 20))
 
     
 def write_mana(game):
@@ -276,6 +281,10 @@ def write_mana(game):
     game.screen.blit(label, (180, 10))
     label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
     game.screen.blit(label, (180, 40))
+    
+def write_ap(game):
+    label = gamefont.render("AP spent: " + str(game.ap), 1, (255,255,10))
+    game.screen.blit(label, (10, 70))
 
 if __name__=='__main__':
     SPRITE_CACHE = TileCache()
