@@ -13,7 +13,6 @@ import sys
 
 
 from random import randint
-    
 
 
 
@@ -102,7 +101,7 @@ class Game(object):
                 Entity.heal(player, 10)
         self.pressed_key = None
      
-        #####
+        #######
         # MOUSE PRESSES
         #####
         if m_pressed(1): #1 = mouse button 1
@@ -128,25 +127,31 @@ class Game(object):
         # main game loop
         while not self.game_over:
             #clear screen
-#             self.screen.fill(black)
-            
-            
             self.sprites.clear(self.screen, self.background) #test
-            self.sprites.update() #test
-            self.dirties = self.sprites.draw(self.screen) #test
+            self.screen.fill(bg_colour)
             
-            write_health(self) #text print out.
-            write_mana(self)
+            
+            self.sprites.update() 
+            self.sprites.draw(self.screen)
+            self.dirties =  [pg.Rect(0,100,1000, 140)]
+            self.dirties.append(write_info(self)) #text print out.
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
+            health_per = 100.0/player.max_hp * player.hp
+            pg.draw.rect(self.screen, (100,20,20), 
+                                (10, 205, health_per, 20))
+             
+            for i in xrange(len(queue)):
+                thing = queue[i]
+                health_per = 100.0/thing.max_hp * thing.hp
+                pg.draw.rect(self.screen, (100,20,20), 
+                             (220 + i*110, 205, health_per, 20))
             
-            
-            if len(queue) <= 0:
-                print "winner, winner, chicken dinner"
-                self.game_over = True
-                    
+            #self.dirties.append(pg.Rect(0,200,1000, 40))
+                
+                
 #           ##OLD STUFF#
             ##Draw the player and it's health bar.S
 #             pg.draw.rect(self.screen, player.colour, player.rect)
@@ -166,8 +171,7 @@ class Game(object):
                     
             clock.tick(15)
             #update screen with changes
-            pg.display.update(self.dirties) #test
-#             pg.display.flip()
+            pg.display.update(self.dirties) 
             
             #check for input events
             for event in pygame.event.get():
@@ -180,21 +184,35 @@ class Game(object):
                     self.mouse_pressed = event.button
                     self.mouse_pos = event.pos
                 
+                elif event.type == QueueManager.DEADTHINGS:
+                    print "hello"
+                    for obj in event.dead:
+                        self.sprites.remove(obj)
+                    
+                    
+            #check for a win
+            if len(queue) <= 0:
+                print "winner, winner, chicken dinner"
+                self.game_over = True
+                
+            self.dirties = []
+                
     
-def write_health(game):
+def write_info(game):
     label = gamefont.render("Health: " + str(player.hp), 1, (199,178,153))
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
-    game.dirties.append(pg.Rect((10,10),(155, 50)))
     
     
-def write_mana(game):
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
     game.screen.blit(label, (180, 10))
     label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
     game.screen.blit(label, (180, 40))
-
+    
+    return pg.Rect((10,10),(400, 50))
+    
+    
 if __name__=='__main__':
     R.SPRITE_CACHE = Entity.TileCache()
     

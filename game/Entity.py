@@ -66,6 +66,7 @@ class Sprite(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.animation = None #self.stand_animation()
         self.pos = pos
+        self.depth = 0
         
     def stand_animation(self):
         while True:
@@ -75,19 +76,22 @@ class Sprite(pg.sprite.Sprite):
                 yield None
                 
     def update(self, *args):
-        if self.animation is not None:
-            self.animation.next()
+        pass
+        
+    @property
+    def pos(self):
+        self.pos[0], self.pos[1]
         
     def _get_pos(self):
         """check current pos of sprite on map"""
-        
-        return self.pos[0]*R.MAP_TILE_WIDTH, self.pos[1]*R.MAP_TILE_WIDTH 
+        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+        #return (self.pos[0], self.pos[1])
         #return (self.rect.midbottom[0]-R.MAP_TILE_WIDTH/2)/R.MAP_TILE_WIDTH, (self.rect.midbottom[1]-R.MAP_TILE_HEIGHT)/R.MAP_TILE_HEIGHT
     
     def _set_pos(self, pos):
         """Set the position and depth of the sprite on the map."""
 
-        self.rect.topleft = 10 + pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH  
+        self.rect.topleft = pos[0]*110, pos[1]*R.MAP_TILE_WIDTH  
         
         self.depth = 0 #self.rect.midbottom[1]
 

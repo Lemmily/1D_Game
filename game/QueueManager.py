@@ -3,7 +3,9 @@ Created on 14 Apr 2014
 
 @author: Emily
 '''
+import pygame as pg
 
+DEADTHINGS = pg.USEREVENT + 1
 
 class QueueManager(object):
     def __init__(self):
@@ -22,14 +24,23 @@ class QueueManager(object):
     
     def purge_the_dead(self):
         for thing in self.queue:
+            the_dead = []
             if thing.dead:
                 self.queue.remove(thing)
+                the_dead.append(thing)
                 print "creature has died"
+        if len(the_dead) > 0:
+            pg.event.post(pg.event.Event(DEADTHINGS, dead = the_dead))
+            for i in xrange(len(self.queue)):
+                thing = self.queue[i]
+                pos = thing.pos
+                if pos[0] != 220 + i*110 or pos[0] != 100:
+                    thing.pos = i,1
     
     def enemy_turns(self, players_action_ap):
         #purge the dead things
-        self.purge_the_dead()
-        
+        #self.purge_the_dead()
+        the_dead = []
         for enemy in self.queue:
             
             enemyPos = self.queue.index(enemy) #get enemy queue position
@@ -45,6 +56,16 @@ class QueueManager(object):
                 #enemy manages it's own AI choices? like which attack to use etc?
                 enemy.take_turn(enemyPos)
                 
+            if enemy.dead:
+                self.queue.remove(enemy)
+                the_dead.append(enemy)
+                print "creature has died"
+        if len(the_dead) > 0:
+            pg.event.post(pg.event.Event(DEADTHINGS, dead = the_dead))
+            for i in xrange(len(self.queue)):
+                thing = self.queue[i]
+                pos = thing.pos
+                if pos[0]-2 !=  i or pos[0] != 1:
+                    thing.pos = 2 + i,1
             
-                
                 
