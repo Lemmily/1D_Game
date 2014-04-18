@@ -1,0 +1,15 @@
+
+[ghost]
+name = ghost
+type = enemy
+tile = 0, 0
+
+[pirate]
+name = pirate
+type = enemy
+tile = 1, 0
+
+[slime]
+name = slime
+type= enemy
+tile = 2, 0
