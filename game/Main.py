@@ -11,6 +11,11 @@ import pygame as pg
 import pygame.locals
 import sys
 
+###
+##SAVEGAME TESTING
+###
+import pickle 
+import shelve
 
 from random import randint
 
@@ -57,22 +62,25 @@ class Game(object):
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates()
         self.sprites = Entity.SortedUpdates()
+        self.tiles = Entity.SortedUpdates()
         
-        sprite = Entity.Player()
-        self.sprites.add(sprite)
         
         self.background = pygame.Surface((1024, 768))
         self.background.fill(bg_colour)
         
-        
         self.dirties = None #holds the dirty bits for updating when rendered.
         
         R.player = player = Entity.Player()
+        self.sprites.add(player)
         R.man_queue = man_queue = QueueManager.QueueManager()
         man_queue.queue = queue = []
+        
+        square = None
         for i in range(7):
+            square = Entity.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
             creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
             man_queue.add_entity(creature)
+            self.tiles.add(square)
             self.sprites.add(creature)
         
         
@@ -120,19 +128,21 @@ class Game(object):
         clock = pg.time.Clock()
         
         #updates screen
-        pg.display.flip()
-        
         self.screen.fill(bg_colour)
         pg.display.flip()
         # main game loop
         while not self.game_over:
             #clear screen
             self.sprites.clear(self.screen, self.background) #test
-            self.screen.fill(bg_colour)
+            #self.screen.fill(bg_colour)
+            self.screen.blit(self.background,(0,0))
             
+            self.tiles.update()
+            self.tiles.draw(self.screen)
             
             self.sprites.update() 
             self.sprites.draw(self.screen)
+            
             self.dirties =  [pg.Rect(0,100,1000, 140)]
             self.dirties.append(write_info(self)) #text print out.
             
@@ -145,7 +155,7 @@ class Game(object):
              
             for i in xrange(len(queue)):
                 thing = queue[i]
-                health_per = 100.0/thing.max_hp * thing.hp
+                health_per = 96.0/thing.max_hp * thing.hp
                 pg.draw.rect(self.screen, (100,20,20), 
                              (220 + i*110, 205, health_per, 20))
             

@@ -107,7 +107,7 @@ class Sprite(pg.sprite.Sprite):
  
 class DummyObject(Sprite):
     def __init__(self, frames = None, pos=(0,0), sprite = [0,0]):
-        Sprite.__init__(self, pos, self.frames)
+        Sprite.__init__(self, pos, frames)
         self.image = self.frames[sprite[0]][sprite[1]]
         topleft = self.rect.topleft
         self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
@@ -129,8 +129,9 @@ class Entity(Sprite):
         self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
         self.rect = self.image.get_rect()
         self.rect.topleft = topleft
-        
-        
+        ###
+        # END
+        ###
         self.hp = 10
         self.max_hp = 10
         self.mana = 10
