@@ -4,12 +4,25 @@ Created on 13 Apr 2014
 @author: Emily
 '''
 
-
+import Entity
 
 class Inventory(object):
     
     def __init__(self):
+        ## not sure what kind of data structure to hold the items, 
+        ##dict is easier to access and find stuff, list is easier to draw and "manage slots"
         self.contents = {}
+        self.slots = [None for i in xrange(0,25)]
+        
+        #basic person type equipment for now.
+        self.equipped = {
+                         "torso": None, 
+                         "legs": None, 
+                         "head": None, 
+                         "left hand": None, 
+                         "right hand": None 
+                         
+                         } #rings, amulets, gloves, quiver, possible "spell slots" 
         
     def get(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:
@@ -40,11 +53,15 @@ class Inventory(object):
             return False
     
     def count(self, _type):
-        if self.contents.has_key(_type) and self.contents[_type] > 0:
+        if self.contents.has_key(_type):
             return self.contents[_type]
         else:
             return 0
         
+        
+class Item(object):
+    def __init__(self):
+        self.sprite = Entity.Sprite()
     
     
     

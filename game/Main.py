@@ -11,14 +11,23 @@ import pygame as pg
 import pygame.locals
 import sys
 
+import Render
+
+from random import randint
+
+
 ###
 ##SAVEGAME TESTING
 ###
 import pickle 
 import shelve
 
-from random import randint
 
+###
+# PROFILING THINGS
+###
+import pstats
+import cProfile
 
 
 gamefont = None
@@ -26,18 +35,7 @@ black = 0, 0, 0
 white = 255, 255, 255
 bg_colour = 33, 100, 117 
 
-############################]
-# 
-# 
-# TESTING STUFF
-#
-#
-###################
 
-
-        
-#END TEST STUFF
-############################################################       
         
 def attack_next():
     if len(queue) > 0:
@@ -61,8 +59,8 @@ class Game(object):
         self.mouse_pos = None
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates()
-        self.sprites = Entity.SortedUpdates()
-        self.tiles = Entity.SortedUpdates()
+        self.sprites = Render.SortedUpdates()
+        self.tiles = Render.SortedUpdates()
         
         
         self.background = pygame.Surface((1024, 768))
@@ -71,17 +69,19 @@ class Game(object):
         self.dirties = None #holds the dirty bits for updating when rendered.
         
         R.player = player = Entity.Player()
-        self.sprites.add(player)
+        self.sprites.add(player.sprite, player.health_bar)
         R.man_queue = man_queue = QueueManager.QueueManager()
         man_queue.queue = queue = []
         
-        square = None
+        square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
+        self.background.blit(square.image, square.rect.topleft)
+        
         for i in range(7):
-            square = Entity.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
+            square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
             creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
             man_queue.add_entity(creature)
-            self.tiles.add(square)
-            self.sprites.add(creature)
+            self.background.blit(square.image, square.rect.topleft)
+            self.sprites.add(creature.sprite, creature.health_bar)
         
         
     def controls(self):
@@ -114,7 +114,7 @@ class Game(object):
         #####
         if m_pressed(1): #1 = mouse button 1
             for thing in queue:
-                if thing.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
+                if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     ap = player.attack_cost
                     Entity.combat(player, thing)
                     man_queue.enemy_turns(ap)
@@ -128,60 +128,44 @@ class Game(object):
         clock = pg.time.Clock()
         
         #updates screen
-        self.screen.fill(bg_colour)
+        self.screen.blit(self.background, (0,0))
+        write_info(self)
         pg.display.flip()
         # main game loop
         while not self.game_over:
             #clear screen
             self.sprites.clear(self.screen, self.background) #test
             #self.screen.fill(bg_colour)
-            self.screen.blit(self.background,(0,0))
+            #self.screen.blit(self.background,(0,0))
             
-            self.tiles.update()
-            self.tiles.draw(self.screen)
             
+            cleaner = pg.Surface((1000, 40))
+            cleaner.fill(bg_colour)
+            self.screen.blit(cleaner, pg.Rect((10,200),(1000, 40)))
+             
             self.sprites.update() 
             self.sprites.draw(self.screen)
-            
-            self.dirties =  [pg.Rect(0,100,1000, 140)]
-            self.dirties.append(write_info(self)) #text print out.
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            health_per = 100.0/player.max_hp * player.hp
-            pg.draw.rect(self.screen, (100,20,20), 
-                                (10, 205, health_per, 20))
-             
-            for i in xrange(len(queue)):
-                thing = queue[i]
-                health_per = 96.0/thing.max_hp * thing.hp
-                pg.draw.rect(self.screen, (100,20,20), 
-                             (220 + i*110, 205, health_per, 20))
+            self.dirties =  [pg.Rect(0,100,1000, 140)] #entire area where monsters are and health bars.
+            
+            
+            
+            
+#             health_per = 100.0/player.max_hp * player.hp
+#             pg.draw.rect(self.screen, (100,20,20), 
+#                                 (30, 205, health_per, 20))
+#              
+#             for i in xrange(len(queue)):
+#                 thing = queue[i]
+#                 health_per = 96.0/thing.max_hp * thing.hp
+#                 pg.draw.rect(self.screen, (100,20,20), 
+#                              (240 + i*110, 205, health_per, 20))
             
             #self.dirties.append(pg.Rect(0,200,1000, 40))
-                
-                
-#           ##OLD STUFF#
-            ##Draw the player and it's health bar.S
-#             pg.draw.rect(self.screen, player.colour, player.rect)
-#             health_per = 100.0/player.max_hp * player.hp
-#             pg.draw.rect(self.screen, (100,20,20), (player.pos[0],player.pos[1] + 105, health_per, 20))
-
-#             for i in range(len(queue)):
-#                 thing = queue[i]
-#                 thing.rect.x = 200 + i*110
-#                 thing.pos = (200 + i*110, 110)
-#                 pg.draw.rect(self.screen, thing.colour, thing.rect)
-#                 
-#                 #draw a health bar
-#                 health_per = 100.0/thing.max_hp * thing.hp
-#                 pg.draw.rect(self.screen, (100,20,20), (thing.pos[0],thing.pos[1] + 105, health_per, 20))
-                    
-                    
-            clock.tick(15)
-            #update screen with changes
-            pg.display.update(self.dirties) 
+     
             
             #check for input events
             for event in pygame.event.get():
@@ -194,18 +178,40 @@ class Game(object):
                     self.mouse_pressed = event.button
                     self.mouse_pos = event.pos
                 
-                elif event.type == QueueManager.DEADTHINGS:
-                    print "hello"
+                elif event.type == R.DEADTHINGSEVENT:
+                    print "hello my pretties"
                     for obj in event.dead:
-                        self.sprites.remove(obj)
+                        self.sprites.remove(obj.sprite, obj.health_bar)
+                    for obj in event.new:
+                        self.sprites.add(obj.sprite, obj.health_bar)
+                        
+                elif event.type == R.UIEVENT:
                     
+                    #TODO: give the event flags - what part of the ui is updating?
+                    print "oh the health updated!"
+                    #TODO: Crude explicit cleaning of the screen. How could this be done better?
+                    cleaner = pg.Surface((400, 50))
+                    cleaner.fill(bg_colour)
+                    self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
+                    self.dirties.append(write_info(self)) #text print out.
+                    
+                   
+            clock.tick(15) 
+            #update screen with changes
+            pg.display.update(self.dirties) 
                     
             #check for a win
             if len(queue) <= 0:
-                print "winner, winner, chicken dinner"
+                print "winner, winner, chicken dinner, you killed: " + str(man_queue.killed)
+                self.game_over = True
+                
+            if player.check_alive() == False:
+                print "LOOOOOO-SER, you only killed: " + str(man_queue.killed)
                 self.game_over = True
                 
             self.dirties = []
+            
+        return 0
                 
     
 def write_info(game):
@@ -224,17 +230,29 @@ def write_info(game):
     
     
 if __name__=='__main__':
-    R.SPRITE_CACHE = Entity.TileCache()
+    #create sprite cache to hold images later
+    R.SPRITE_CACHE = Render.TileCache()
     
     pg.init()
+    #set the window size
     pg.display.set_mode((1024,768))
+    #set the window title
     pg.display.set_caption('1D_RL')
     
-    #load font
+    #load a font
     gamefont = pg.font.SysFont("monospace", 15)
+    
+    
+    #normal operation
     Game().main()
     
-    
+    #for profiling runs.
+#     profiler = cProfile.run("Game().main()","profile")
+#     #PRINTS OUT PROFILE INFO
+#     p = pstats.Stats("profile")
+#     p.sort_stats("calls", "cumulative")
+#     p.print_stats()
+
     
     
     
