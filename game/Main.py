@@ -10,6 +10,7 @@ import Reg as R
 import pygame as pg
 import pygame.locals
 import sys
+from random import randint
 
 
     
@@ -190,6 +191,13 @@ class Game(object):
                     self.ap += ap
                     break
                     
+        if pressed(pg.K_g):
+            if player.mana > player.heal_spell_cost:
+                heal = randint(5,10)
+                Entity.heal(player, heal)
+                player.update_mana(-30)
+                print "You cast your healing spell. Regaining "+ str(heal) + " health."
+                        
         self.pressed_key = None
      
         if m_pressed(1):
@@ -275,6 +283,11 @@ class Game(object):
                 
     
 def write_health(game):
+    '''
+    writes all player health related info to the screen.
+    numerical values for health points and number of health potions remaining
+    graphical bar representing percentage of health remaining, similar to the creep health bars
+    '''
     label = gamefont.render("Health: " + str(player.hp), 1, (255,255,10))
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
@@ -283,12 +296,20 @@ def write_health(game):
 
     
 def write_mana(game):
+    '''
+    writes all player related mana info to the screen,
+    numerical values for mana points and number of mana potions remaining
+    graphical representation of percentage of mana remaining ---not yet implemented
+    '''
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
     game.screen.blit(label, (180, 10))
     label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
     game.screen.blit(label, (180, 40))
     
 def write_ap(game):
+    '''
+    writes a count of the total action_points spent by player to the screen
+    '''
     label = gamefont.render("AP spent: " + str(game.ap), 1, (255,255,10))
     game.screen.blit(label, (10, 70))
 

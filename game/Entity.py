@@ -94,7 +94,7 @@ class Player(Entity):
         self.base_attack_cost = 150
         self.base_ranged_attack_cost = 300
         
-        
+        self.heal_spell_cost = 40
        
         
 class Creature(Entity):
@@ -212,6 +212,12 @@ class Attribute():
             
         
 def combat(attacker, defender):
+    '''
+    melee combat for attacker(player) and defender(creep in queue pos 0)
+    melee combat damage based on player strength attribute; weapon equipped; player skill points with chosen weapon; crit damage
+    crit damage currently defaulted to 10*base damage -----to be refined
+    crit chance currently 10% chance with modifier of player dexterity attribute ----to be refined
+    '''
     #TODO: actual combat calculations - to hits etc 
     #TODO: this maybe needs to be put into queue manager? or something like that?
     #damage = attacker damage + randint from weapon + weapon skill?
@@ -231,6 +237,12 @@ def combat(attacker, defender):
         print "You swing your weapon, dealing " + str(damage) + " leaving the creature on " + str(defender.hp) 
     
 def ranged_combat(attacker, defender):
+    '''
+    ranged combat for attacker(player) and defender(creep in queue pos >0)
+    ranged combat damage based on player dexterity attribute; weapon equipped; player skill points with chosen weapon; crit damage
+    crit damage currently defaulted to 10*base damage -----to be refined
+    crit chance currently 10% chance with modifier of player dexterity attribute ----to be refined
+    '''
     #damage = attacker damage + randint from weapon + crit chance + weapon skill?
     crit = False
     crit_dmg = 0
