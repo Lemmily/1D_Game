@@ -154,16 +154,6 @@ class Game(object):
             
             
             
-#             health_per = 100.0/player.max_hp * player.hp
-#             pg.draw.rect(self.screen, (100,20,20), 
-#                                 (30, 205, health_per, 20))
-#              
-#             for i in xrange(len(queue)):
-#                 thing = queue[i]
-#                 health_per = 96.0/thing.max_hp * thing.hp
-#                 pg.draw.rect(self.screen, (100,20,20), 
-#                              (240 + i*110, 205, health_per, 20))
-            
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
             
