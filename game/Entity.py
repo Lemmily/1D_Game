@@ -2,6 +2,7 @@
 Created on 12 Apr 2014
 
 @author: James & Emily
+extendcombat branch test
 '''
 
 import pygame as pg
@@ -108,14 +109,18 @@ class Player(Entity):
         self.max_mana = self.stats.attr["int"].value*11
         self.mana = self.max_mana
         
+        self.melee_attack_dmg = self.stats.attr["str"].value/2
+        self.ranged_attack_dmg = self.stats.attr["dex"].value/3
+        
         self.inventory = Inventory()
         self.inventory.pick_up("hp potion", 3)
        
        
-        #TEMP: attack_cost
-        self.attack_cost = 15
+        #TEMP: base_attack_cost
+        self.base_attack_cost = 150
+        self.base_ranged_attack_cost = 300
         
-        
+        self.heal_spell_cost = 40
        
     def update_health(self, change):
         Entity.update_health(self, change)
@@ -129,6 +134,12 @@ class Creature(Entity):
         #self.sprite = Render.Sprite(pos, R.SPRITE_CACHE["data/monsters_x24.png"], sprite_pos)
         
         self.stats = Stats(3,9)
+        
+        self.max_hp = self.stats.attr["con"].value*11
+        self.hp = self.max_hp
+        self.max_mana = self.stats.attr["int"].value*11
+        self.mana = self.max_mana
+        
         self.action_points = randint(0,30)  #will start with one attack worth of AP
         
         self.melee_cost = 30
@@ -180,7 +191,7 @@ class Creature(Entity):
         
         
     def do_ranged_attack(self, q_position):
-        #TODO: possibly abstarct this back an inheritence level - currently *always* attacks player.
+        #TODO: possibly abstract this back an inheritence level - currently *always* attacks player.
         
         #TODO: attack calculations
         self.use_action_points(self.ranged_cost)
@@ -234,14 +245,55 @@ class Attribute():
             
         
 def combat(attacker, defender):
+    '''
+    melee combat for attacker(player) and defender(creep in queue pos 0)
+    melee combat damage based on player strength attribute; weapon equipped; player skill points with chosen weapon; crit damage
+    crit damage currently defaulted to 10*base damage -----to be refined
+    crit chance currently 10% chance with modifier of player dexterity attribute ----to be refined
+    '''
     #TODO: actual combat calculations - to hits etc 
     #TODO: this maybe needs to be put into queue manager? or something like that?
-    
-    defender.update_health(-attacker.get_attack())
-    print defender.hp, "/", attacker.hp
+    #damage = attacker damage + randint from weapon + weapon skill?
+    crit = False
+    crit_dmg = 0
+    if randint(1,100)+ attacker.stats.attr["dex"].value > 90:
+        crit = True
+        crit_dmg = attacker.get_ranged_damage()*10
+    if crit:
+        damage = attacker.get_attack() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        print "You swing your weapon and crit, dealing " + str(damage) + " leaving the creature on " + str(defender.hp) 
+    else:
+        damage = attacker.get_attack() + randint(1,10)
+        defender.update_health(-damage)
+    #print defender.hp, "/", attacker.hp
+        print "You swing your weapon, dealing " + str(damage) + " leaving the creature on " + str(defender.hp) 
+  
     
 def ranged_combat(attacker, defender):
-    defender.update_health(-attacker.get_ranged_damage())    
+    '''
+    ranged combat for attacker(player) and defender(creep in queue pos >0)
+    ranged combat damage based on player dexterity attribute; weapon equipped; player skill points with chosen weapon; crit damage
+    crit damage currently defaulted to 10*base damage -----to be refined
+    crit chance currently 10% chance with modifier of player dexterity attribute ----to be refined
+    '''
+    #damage = attacker damage + randint from weapon + crit chance + weapon skill?
+    crit = False
+    crit_dmg = 0
+    if randint(1,100)+ attacker.stats.attr["dex"].value > 90:
+        crit = True
+        crit_dmg = attacker.get_ranged_damage()*10
+    if crit:
+        damage = attacker.get_ranged_damage() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        #print defender.hp, "/", attacker.hp
+        print "You fire your bow and crit, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp) 
+    else:
+        damage = attacker.get_ranged_damage() + randint(1,10) + crit_dmg
+        defender.update_health(-damage)
+        #print defender.hp, "/", attacker.hp
+        print "You fire your bow, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp)
+    
     
 def heal(Entity, amount):
     Entity.update_health(amount)
@@ -255,10 +307,7 @@ def use(Entity, item_type):
             return False
     else:
         return False
-        
-        
-        
-        
-        
-        
+
+
+
 

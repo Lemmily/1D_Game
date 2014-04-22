@@ -10,6 +10,7 @@ import Reg as R
 import pygame as pg
 import pygame.locals
 import sys
+from random import randint
 
 import Render
 
@@ -39,7 +40,7 @@ bg_colour = 33, 100, 117
         
 def attack_next():
     if len(queue) > 0:
-        ap = player.attack_cost
+        ap = player.base_attack_cost
         Entity.combat(player, queue[0])
         man_queue.enemy_turns(ap)
         return True
@@ -62,6 +63,8 @@ class Game(object):
         self.sprites = Render.SortedUpdates()
         self.tiles = Render.SortedUpdates()
         
+        
+        self.ap = 0
         
         self.background = pygame.Surface((1024, 768))
         self.background.fill(bg_colour)
@@ -107,6 +110,19 @@ class Game(object):
         if pressed(pg.K_h):
             if Entity.use(player, "hp potion"):
                 Entity.heal(player, 10)
+                for thing in queue:
+                    ap = 3 # arbitrary number of ap for potion use
+                    man_queue.enemy_turns(ap)
+                    self.ap += ap
+                    break
+                    
+        if pressed(pg.K_g):
+            if player.mana > player.heal_spell_cost:
+                heal = randint(5,10)
+                Entity.heal(player, heal)
+                player.update_mana(-30)
+                print "You cast your healing spell. Regaining "+ str(heal) + " health."
+                        
         self.pressed_key = None
      
         #######
@@ -115,9 +131,16 @@ class Game(object):
         if m_pressed(1): #1 = mouse button 1
             for thing in queue:
                 if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
-                    ap = player.attack_cost
-                    Entity.combat(player, thing)
-                    man_queue.enemy_turns(ap)
+                    if queue.index(thing) == 0:
+                        ap = player.base_attack_cost/player.stats.attr["dex"].value
+                        Entity.combat(player, thing)
+                        man_queue.enemy_turns(ap)
+                        break
+                    else:
+                        ap = player.base_ranged_attack_cost/player.stats.attr["dex"].value
+                        Entity.ranged_combat(player, thing)
+                        man_queue.enemy_turns(ap)
+                        break
                     break
         self.mouse_pressed = None
         
@@ -138,7 +161,6 @@ class Game(object):
             #self.screen.fill(bg_colour)
             #self.screen.blit(self.background,(0,0))
             
-            
             cleaner = pg.Surface((1000, 40))
             cleaner.fill(bg_colour)
             self.screen.blit(cleaner, pg.Rect((10,200),(1000, 40)))
@@ -150,10 +172,7 @@ class Game(object):
             self.controls()
             
             self.dirties =  [pg.Rect(0,100,1000, 140)] #entire area where monsters are and health bars.
-            
-            
-            
-            
+
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
             
@@ -203,14 +222,19 @@ class Game(object):
             
         return 0
                 
-    
+
 def write_info(game):
+    '''
+    writes all player health related info to the screen.
+    numerical values for health points and number of health potions remaining
+    graphical bar representing percentage of health remaining, similar to the creep health bars
+    writes all player related mana info to the screen,
+    numerical values for mana points and number of mana potions remaining
+    graphical representation of percentage of mana remaining ---not yet implemented
+    '''
+    
     label = gamefont.render("Health: " + str(player.hp), 1, (199,178,153))
     game.screen.blit(label, (10, 10))
-    label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
-    game.screen.blit(label, (10, 40))
-    
-    
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
     game.screen.blit(label, (180, 10))
     label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
@@ -219,6 +243,14 @@ def write_info(game):
     return pg.Rect((10,10),(400, 50))
     
     
+def write_ap(game):
+    '''
+    writes a count of the total action_points spent by player to the screen
+    '''
+    label = gamefont.render("AP spent: " + str(game.ap), 1, (255,255,10))
+    game.screen.blit(label, (10, 70))
+
+
 if __name__=='__main__':
     #create sprite cache to hold images later
     R.SPRITE_CACHE = Render.TileCache()
