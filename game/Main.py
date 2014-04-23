@@ -35,6 +35,8 @@ black = 0, 0, 0
 white = 255, 255, 255
 bg_colour = 33, 100, 117 
 
+stat_page_one = None
+stat_page_two = None
 
         
 def attack_next():
@@ -155,10 +157,10 @@ class Game(object):
             #self.screen.fill(bg_colour)
             #self.screen.blit(self.background,(0,0))
             
-            cleaner = pg.Surface((400,500))
+            stat_window_one = cleaner = pg.Surface((400,518))
             cleaner.fill((40,50,80))
             
-            self.screen.blit(cleaner,pg.Rect((10,250),(400,500)))
+            self.screen.blit(cleaner,pg.Rect((10,242),(400,518)))
                              
             cleaner = pg.Surface((1000, 40))
             cleaner.fill(bg_colour)
@@ -170,7 +172,7 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,250),(400,500))] #entire area where monsters are and health bars.
+            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,242),(400,520))] #entire area where monsters are and health bars.
 
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
