@@ -2,7 +2,7 @@
 Created on 12 Apr 2014
 
 @author: James & Emily
-extendcombat branch test
+
 '''
 
 import pygame as pg
@@ -124,8 +124,7 @@ class Player(Entity):
        
     def update_health(self, change):
         Entity.update_health(self, change)
-        print "player bit"
-        pg.event.post(pg.event.Event(R.UIEVENT))
+        pg.event.post(pg.event.Event(R.UIEVENT, health=True))
         
 class Creature(Entity):
     
