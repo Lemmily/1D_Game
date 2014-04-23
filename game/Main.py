@@ -110,11 +110,9 @@ class Game(object):
         if pressed(pg.K_h):
             if Entity.use(player, "hp potion"):
                 Entity.heal(player, 10)
-                for thing in queue:
-                    ap = 3 # arbitrary number of ap for potion use
-                    man_queue.enemy_turns(ap)
-                    self.ap += ap
-                    break
+                ap = 3 # arbitrary number of ap for potion use
+                man_queue.enemy_turns(ap)
+                self.ap += ap
                     
         if pressed(pg.K_g):
             if player.mana > player.heal_spell_cost:
