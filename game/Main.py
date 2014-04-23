@@ -29,6 +29,8 @@ import pstats
 import cProfile
 
 
+
+#Temp things
 gamefont = None
 stat_window_font = None
 black = 0, 0, 0
@@ -38,6 +40,9 @@ bg_colour = 33, 100, 117
 stat_page_one = None
 stat_page_two = None
 
+STATS_ONE = True
+
+selected_monst = None
         
 def attack_next():
     if len(queue) > 0:
@@ -54,6 +59,7 @@ def attack_next():
 class Game(object):
     
     def __init__(self):
+        global stat_page_one, stat_page_two
         global man_queue, player, queue, tes, potion_ts
         self.screen = pg.display.get_surface()
         self.pressed_key = None
@@ -88,7 +94,19 @@ class Game(object):
             self.sprites.add(creature.sprite, creature.health_bar)
         
         
+        stat_page_one = pg.Surface((400,510))
+        stat_page_one.fill((40,50,80))
+        
+        stat_page_two = pg.Surface((400,510))
+        stat_page_two.fill((80,50,40))
+        
+        
+        stat_page_two.blit(stat_page_one, pg.Rect((200,0),(200,30)),pg.Rect((200,0),(200,30)))
+        stat_page_one.blit(stat_page_two, pg.Rect((0,0),(200,30)),pg.Rect((0,0),(200,30)))
+        
+        
     def controls(self):
+        global selected_monst
         
         #keys = pg.key.get_pressed()
         
@@ -114,7 +132,10 @@ class Game(object):
                 ap = 3 # arbitrary number of ap for potion use
                 man_queue.enemy_turns(ap)
                 self.ap += ap
-                    
+        
+        if pressed(pg.K_s):
+            pg.event.post(pg.event.Event(R.UIEVENT, stats = True, health = False))
+        
         if pressed(pg.K_g):
             if player.mana > player.heal_spell_cost:
                 heal = randint(5,10)
@@ -127,7 +148,7 @@ class Game(object):
         #######
         # MOUSE PRESSES
         #####
-        if m_pressed(1): #1 = mouse button 1
+        if m_pressed(1): #1 = mouse button left click
             for thing in queue:
                 if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     if queue.index(thing) == 0:
@@ -139,6 +160,12 @@ class Game(object):
                         Entity.ranged_combat(player, thing)
                         man_queue.enemy_turns(ap)
                     break
+        if m_pressed(3): #3 = mouse button right click
+            for thing in queue:
+                if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
+                    selected_monst = thing
+                    pg.event.post(pg.event.Event(R.UIEVENT, health = False, stats=True))
+                    print selected_monst
         self.mouse_pressed = None
         
         
@@ -151,59 +178,31 @@ class Game(object):
         write_info(self)
         pg.display.flip()
         # main game loop
+        print self.screen.get_rect().height - 250 
         while not self.game_over:
             #clear screen
             self.sprites.clear(self.screen, self.background) #test
             #self.screen.fill(bg_colour)
             #self.screen.blit(self.background,(0,0))
-            
-            stat_window_one = cleaner = pg.Surface((400,518))
-            cleaner.fill((40,50,80))
-            
-            self.screen.blit(cleaner,pg.Rect((10,242),(400,518)))
                              
             cleaner = pg.Surface((1000, 40))
             cleaner.fill(bg_colour)
             self.screen.blit(cleaner, pg.Rect((10,200),(1000, 40)))
-             
+            
             self.sprites.update() 
             self.sprites.draw(self.screen)
             
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,242),(400,520))] #entire area where monsters are and health bars.
+            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,248),(400,510))] #entire area where monsters are and health bars.
 
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
             
             #check for input events
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT: 
-                    self.game_over = True
-                elif event.type == pg.KEYDOWN:
-                    self.pressed_key = event.key
-                    
-                elif event.type == pg.MOUSEBUTTONDOWN:
-                    self.mouse_pressed = event.button
-                    self.mouse_pos = event.pos
-                
-                elif event.type == R.DEADTHINGSEVENT:
-                    print "hello my pretties"
-                    for obj in event.dead:
-                        self.sprites.remove(obj.sprite, obj.health_bar)
-                    for obj in event.new:
-                        self.sprites.add(obj.sprite, obj.health_bar)
-                        
-                elif event.type == R.UIEVENT:
-                    
-                    #TODO: give the event flags - what part of the ui is updating?
-                    print "oh the health updated!"
-                    #TODO: Crude explicit cleaning of the screen. How could this be done better?
-                    cleaner = pg.Surface((400, 50))
-                    cleaner.fill(bg_colour)
-                    self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
-                    self.dirties.append(write_info(self)) #text print out.
+            self.handle_events()
+            
                     
                    
             clock.tick(15) 
@@ -222,6 +221,42 @@ class Game(object):
             self.dirties = []
             
         return 0
+    
+    
+    def handle_events(self):
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT: 
+                    self.game_over = True
+                elif event.type == pg.KEYDOWN:
+                    self.pressed_key = event.key
+                    
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    self.mouse_pressed = event.button
+                    self.mouse_pos = event.pos
+                
+                elif event.type == R.DEADTHINGSEVENT:
+                    print "hello my pretties, welcome to death"
+                    for obj in event.dead:
+                        self.sprites.remove(obj.sprite, obj.health_bar)
+                    for obj in event.new:
+                        self.sprites.add(obj.sprite, obj.health_bar)
+                        
+                elif event.type == R.UIEVENT:
+                    #TODO: give the event flags - what part of the ui is updating?
+                    if event.health: #TODO: this is temporary flag. Will be broken up differently 
+                        print "oh the health updated!"
+                        #TODO: Crude explicit cleaning of the screen. How could this be done better?
+                        cleaner = pg.Surface((400, 50))
+                        cleaner.fill(bg_colour)
+                        self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
+                        self.dirties.append(write_info(self)) #text print out.
+                    
+                    if event.stats:
+                        cleaner = pg.Surface((400, 510))
+                        cleaner.fill(bg_colour)
+                        self.screen.blit(cleaner,pg.Rect((10,250),(400, 510)))
+                        
+                        self.dirties.append(write_stats_window(self))
                 
 
 def write_info(game):
@@ -236,6 +271,8 @@ def write_info(game):
     
     label = gamefont.render("Health: " + str(player.hp), 1, (199,178,153))
     game.screen.blit(label, (10, 10))
+    label = gamefont.render("Health Potions: " + str(player.inventory.count("health potion")), 1, (255,255,0))
+    game.screen.blit(label, (10, 40))
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
     game.screen.blit(label, (180, 10))
     label = gamefont.render("Mana Potions: " + str(player.inventory.count("mana potion")), 1, (255,255,0))
@@ -245,11 +282,37 @@ def write_info(game):
     
 
 def write_stats_window(game):
+    print selected_monst
+    stat_page = pg.Surface(stat_page_one.get_rect().size)
     
-    
+    stat_page.blit(stat_page_one, (0, 0))
     label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (199,178,153))
-    game.screen.blit(label, (10, 350))
-    pass
+    stat_page.blit(label, (10, 30))
+    
+    i = 0
+    for stat in player.stats.attr.keys():
+        attr = player.stats.attr[stat]
+        label = gamefont.render(attr.name + ": " + str(attr.value), 1, (250,178,250))
+        stat_page.blit(label, (10, 50 +i*20))
+        i += 1
+        
+    if selected_monst is not None:
+        label = gamefont.render("Health: " + str(selected_monst.hp) + "/" + str(selected_monst.max_hp), 1, (199,178,153))
+        stat_page.blit(label, (200, 30))
+        i = 0
+        for stat in selected_monst.stats.attr.keys():
+            attr = selected_monst.stats.attr[stat]
+            label = gamefont.render(attr.name + ": " + str(attr.value), 1, (250,178,250))
+            stat_page.blit(label, (200, 50 +i*20))
+            i += 1
+            
+        
+#    else:
+#        stat_page.blit(stat_page_two, (0, 0))
+#        label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.base_hp), 1, (199,178,153))
+#        stat_page.blit(label, (10, 30))
+        
+    game.screen.blit(stat_page, (10, 248))
 
 
 def write_ap(game):

@@ -33,9 +33,11 @@ class Entity(object):
         # might be moved to stats? things like damage 
         # would be better as an @property method to aggregate all sources - stats, weapons, buffs.
         ###
-        self.max_hp = 10
+        self.stats = Stats(0,0)
+        self.xp_level = 1
+        self.dead = False
+        self.base_hp = 10
         self.hp = self.max_hp
-        
         self.melee_attack_dmg = 4
         self.ranged_attack_dmg = 1
         
@@ -43,7 +45,6 @@ class Entity(object):
         #END
         ###
         
-        self.dead = False
         self.has_melee = True
         self.has_ranged = False
         self.has_magic = False #only given mana attributes if this is true ?
@@ -52,21 +53,31 @@ class Entity(object):
         print "updating health for " + self.__class__.__name__
         #make sure you can't heal a dead guy.
         if not self.dead and change != 0:
-            self.hp += change
+            self.hp = self.hp + change
             if self.hp > self.max_hp:
                 self.hp = self.max_hp
             
-            #check to see if it's dead
-            self.check_alive()
-            
-            if not self.dead:
-                self.health_bar.resize(96.0/self.max_hp * self.hp, 20)
-            
-            return self.hp
-        return False
-            
+        #check to see if it's dead
+        self.check_alive()
+        
+        if not self.dead:
+            self.health_bar.resize(96.0/self.max_hp * self.hp, 20)
+        
+        return self.hp
+        
+    @property
+    def max_hp(self):
+        try:
+            con = self.stats.attr["con"].value
+            value = self.base_hp 
+            value += ( max(con - 10, 0)/2) * self.xp_level
+            return value
+        
+        except:
+            return self.base_hp
+                    
     def check_alive(self):
-        if self.get_health() <= 0:
+        if self.hp <= 0:
             self.dead = True
             return False
         return True
@@ -76,9 +87,7 @@ class Entity(object):
             self.mana += change
             #weird if else
             self.mana = self.mana if (self.mana < self.max_mana) else self.max_mana
-        
-    def get_health(self):
-        return self.hp
+
     
         
     ###### 
@@ -104,7 +113,8 @@ class Player(Entity):
 #         self.sprite = Render.Sprite((0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
 
         self.stats = Stats(8,14)
-        self.max_hp = self.stats.attr["con"].value*11
+        self.stats.attr["con"].value = 16
+        self.base_hp = self.stats.attr["con"].value*11 #TODO: Dice Roll
         self.hp = self.max_hp
         self.max_mana = self.stats.attr["int"].value*11
         self.mana = self.max_mana
@@ -124,7 +134,7 @@ class Player(Entity):
        
     def update_health(self, change):
         Entity.update_health(self, change)
-        pg.event.post(pg.event.Event(R.UIEVENT, health=True))
+        pg.event.post(pg.event.Event(R.UIEVENT, health=True, stats = False))
         
 class Creature(Entity):
     
@@ -134,7 +144,7 @@ class Creature(Entity):
         
         self.stats = Stats(3,9)
         
-        self.max_hp = self.stats.attr["con"].value*11
+        self.base_hp = self.stats.attr["con"].value*11
         self.hp = self.max_hp
         self.max_mana = self.stats.attr["int"].value*11
         self.mana = self.max_mana

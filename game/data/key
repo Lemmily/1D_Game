@@ -3,6 +3,8 @@
 name = ghost
 type = enemy
 tile = 0, 0
+image = data/monsters_x24.png
+base stats = [4,4,4,4,4,4,4]
 
 [pirate]
 name = pirate
