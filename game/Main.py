@@ -149,6 +149,7 @@ class Game(object):
         write_info(self)
         pg.display.flip()
         # main game loop
+        print self.screen.get_rect().height - 250 
         while not self.game_over:
             #clear screen
             self.sprites.clear(self.screen, self.background) #test
@@ -157,8 +158,7 @@ class Game(object):
             
             cleaner = pg.Surface((400,500))
             cleaner.fill((40,50,80))
-            
-            self.screen.blit(cleaner,pg.Rect((10,250),(400,500)))
+            self.screen.blit(cleaner,pg.Rect((10,242),(400,520)))
                              
             cleaner = pg.Surface((1000, 40))
             cleaner.fill(bg_colour)
@@ -170,7 +170,7 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,250),(400,500))] #entire area where monsters are and health bars.
+            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,242),(400,520))] #entire area where monsters are and health bars.
 
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
@@ -187,21 +187,28 @@ class Game(object):
                     self.mouse_pos = event.pos
                 
                 elif event.type == R.DEADTHINGSEVENT:
-                    print "hello my pretties"
+                    print "hello my pretties, welcome to death"
                     for obj in event.dead:
                         self.sprites.remove(obj.sprite, obj.health_bar)
                     for obj in event.new:
                         self.sprites.add(obj.sprite, obj.health_bar)
                         
                 elif event.type == R.UIEVENT:
-                    
                     #TODO: give the event flags - what part of the ui is updating?
-                    print "oh the health updated!"
-                    #TODO: Crude explicit cleaning of the screen. How could this be done better?
-                    cleaner = pg.Surface((400, 50))
-                    cleaner.fill(bg_colour)
-                    self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
-                    self.dirties.append(write_info(self)) #text print out.
+                    if event.health: #TODO: this is temporary flag. Will be broken up differently 
+                        print "oh the health updated!"
+                        #TODO: Crude explicit cleaning of the screen. How could this be done better?
+                        cleaner = pg.Surface((400, 50))
+                        cleaner.fill(bg_colour)
+                        self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
+                        self.dirties.append(write_info(self)) #text print out.
+                    
+                    if event.stats:
+                        cleaner = pg.Surface((400, 50))
+                        cleaner.fill(bg_colour)
+                        self.screen.blit(cleaner,pg.Rect((10,10),(400, 50)))
+                        
+                        self.dirties.append(write_stats_window(self))
                     
                    
             clock.tick(15) 
@@ -243,8 +250,6 @@ def write_info(game):
     
 
 def write_stats_window(game):
-    
-    
     label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (199,178,153))
     game.screen.blit(label, (10, 350))
     pass
