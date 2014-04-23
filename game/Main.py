@@ -14,8 +14,6 @@ from random import randint
 
 import Render
 
-from random import randint
-
 
 ###
 ##SAVEGAME TESTING
@@ -32,6 +30,7 @@ import cProfile
 
 
 gamefont = None
+stat_window_font = None
 black = 0, 0, 0
 white = 255, 255, 255
 bg_colour = 33, 100, 117 
@@ -133,19 +132,16 @@ class Game(object):
                         ap = player.base_attack_cost/player.stats.attr["dex"].value
                         Entity.combat(player, thing)
                         man_queue.enemy_turns(ap)
-                        break
                     else:
                         ap = player.base_ranged_attack_cost/player.stats.attr["dex"].value
                         Entity.ranged_combat(player, thing)
                         man_queue.enemy_turns(ap)
-                        break
                     break
         self.mouse_pressed = None
         
         
   
     def main(self):
-        
         clock = pg.time.Clock()
         
         #updates screen
@@ -159,6 +155,11 @@ class Game(object):
             #self.screen.fill(bg_colour)
             #self.screen.blit(self.background,(0,0))
             
+            cleaner = pg.Surface((400,500))
+            cleaner.fill((40,50,80))
+            
+            self.screen.blit(cleaner,pg.Rect((10,250),(400,500)))
+                             
             cleaner = pg.Surface((1000, 40))
             cleaner.fill(bg_colour)
             self.screen.blit(cleaner, pg.Rect((10,200),(1000, 40)))
@@ -169,7 +170,7 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            self.dirties =  [pg.Rect(0,100,1000, 140)] #entire area where monsters are and health bars.
+            self.dirties =  [pg.Rect(0,100,1000, 140), pg.Rect((10,250),(400,500))] #entire area where monsters are and health bars.
 
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
@@ -240,7 +241,15 @@ def write_info(game):
     
     return pg.Rect((10,10),(400, 50))
     
+
+def write_stats_window(game):
     
+    
+    label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (199,178,153))
+    game.screen.blit(label, (10, 350))
+    pass
+
+
 def write_ap(game):
     '''
     writes a count of the total action_points spent by player to the screen
@@ -259,8 +268,9 @@ if __name__=='__main__':
     #set the window title
     pg.display.set_caption('1D_RL')
     
-    #load a font
+    #load fonts
     gamefont = pg.font.SysFont("monospace", 15)
+    stat_window_font = pg.font.SysFont("monospace", 12)
     
     
     #normal operation
