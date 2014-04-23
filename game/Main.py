@@ -102,7 +102,7 @@ class Game(object):
         # KEYBOARD PRESSES
         ####
         if pressed(pg.K_j):
-            print "Emily Loves James"
+            print "Emily Loves James lots"
             
         if pressed(pg.K_q):
             attack_next()
