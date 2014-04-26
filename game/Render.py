@@ -55,7 +55,7 @@ class SortedUpdates(pg.sprite.RenderUpdates):
 
 
 class Sprite(pg.sprite.Sprite):
-    is_player = False
+    
     def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
         super(Sprite, self).__init__()
         self.frames = frames
@@ -65,7 +65,6 @@ class Sprite(pg.sprite.Sprite):
         self.pos = pos
         self.depth = 0
         topleft = self.rect.topleft
-        self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
         self.rect = self.image.get_rect()
         self.rect.topleft = topleft
                         
@@ -77,15 +76,15 @@ class Sprite(pg.sprite.Sprite):
     def _get_pos(self):
         """check current pos of sprite on map"""
         #tiles are 100 wide, but buffer of 10 between them
-        return (self.rect.x/(R.MAP_TILE_WIDTH+10), self.rect.y/R.MAP_TILE_WIDTH)
+        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
     
     def _set_pos(self, pos):
         """Set the position and depth of the sprite on the map."""
-        if pos[0] > 0:
-            x_tens = pos[0]-1
-        else:
-            x_tens = 0
-        self.rect.topleft = 30 + pos[0]*100 + (x_tens * 10), pos[1]*R.MAP_TILE_WIDTH  
+#         if pos[0] > 0:
+#             x_tens = pos[0]-1
+#         else:
+#             x_tens = 0
+        self.rect.topleft = pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH
         
         self.depth = 0 #self.rect.midbottom[1]
 
@@ -97,6 +96,47 @@ class Sprite(pg.sprite.Sprite):
 
         self.rect.move_ip(dx, dy)
         self.depth = self.rect.midbottom[1]
+ 
+class SpriteTile(Sprite):
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
+        Sprite.__init__(self, pos, frames, sprite_pos)
+        
+        self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
+        
+    def _get_pos(self):
+        """check current pos of sprite on map"""
+        #tiles are 100 wide, but buffer of 10 between them
+        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+    
+    def _set_pos(self, pos):
+        """Set the position by the TILE POSITION X,Y """
+#         if pos[0] > 0:
+#             x_tens = pos[0]-1
+#         else:
+#             x_tens = 0
+        self.rect.topleft = pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH
+        
+        self.depth = 0 #self.rect.midbottom[1]
+        
+   
+class SpriteOther(Sprite): 
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], scaling = 4):
+        Sprite.__init__(self, pos, frames, sprite_pos)
+        self.image = pg.transform.scale(self.image, (R.tile_size*scaling,R.tile_size*scaling))
+        
+        
+    def _get_pos(self):
+        """check current pos of sprite on map"""
+        #tiles are 100 wide, but buffer of 10 between them
+        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+    
+    def _set_pos(self, pos):
+        """Sets by the PIXEL LOCATION"""
+        self.rect.topleft = pos[0], pos[1]
+        
+        self.depth = 0 #self.rect.midbottom[1]
+ 
+ 
  
 class Block(Sprite):
     """ Solid colour rectangle"""
@@ -127,4 +167,4 @@ class DummyObject(Sprite):
         self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
         self.rect = self.image.get_rect()
         self.rect.topleft = topleft
-     
+
