@@ -7,8 +7,8 @@ import pygame as pg
 
 
 tile_size = 24
-MAP_TILE_WIDTH = 100
-MAP_TILE_HEIGHT = 100
+MAP_TILE_WIDTH = 96
+MAP_TILE_HEIGHT = 96
 
 
 player = None
@@ -22,6 +22,8 @@ tes = None
 
 
 SPRITE_CACHE = None
+
+MONSTER_INFO = None
 
 
 ## USER EVENTS

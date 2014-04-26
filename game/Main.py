@@ -4,30 +4,31 @@ Created on 12 Apr 2014
 @author: James & Emily
 '''
 
+from random import randint
+import ConfigParser
 import Entity
 import QueueManager
 import Reg as R
-import pygame as pg
-import pygame.locals
-import sys
-from random import randint
-
 import Render
 import Util
+import cProfile
+import pickle
+import pstats
+import pygame as pg
+import pygame.locals
+import shelve
+import sys
+
 
 
 ###
 ##SAVEGAME TESTING
 ###
-import pickle 
-import shelve
 
 
 ###
 # PROFILING THINGS
 ###
-import pstats
-import cProfile
 
 
 
@@ -55,7 +56,18 @@ def attack_next():
         return False
     
 
-
+def load_files(filename = "data/monsters"):
+    
+    parser = ConfigParser.ConfigParser()
+    parser.read(filename)
+    monsters = {}
+    
+    for section in parser.sections():
+        desc = dict(parser.items(section))
+        monsters[section] = desc
+        
+    return monsters
+    
 
 class Game(object):
     
@@ -78,6 +90,10 @@ class Game(object):
         self.background.fill(bg_colour)
         
         self.dirties = None #holds the dirty bits for updating when rendered.
+        
+        
+        R.MONSTER_INFO = load_files()
+        
         
         R.player = player = Entity.Player()
         self.sprites.add(player.sprite, player.health_bar)
@@ -272,7 +288,7 @@ def write_info(game):
     
     label = gamefont.render("Health: " + str(player.hp), 1, (199,178,153))
     game.screen.blit(label, (10, 10))
-    label = gamefont.render("Health Potions: " + str(player.inventory.count("health potion")), 1, (255,255,0))
+    label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
     label = gamefont.render("Mana: " + str(player.mana), 1, (255,255,10))
     game.screen.blit(label, (180, 10))

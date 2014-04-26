@@ -63,7 +63,7 @@ class Inventory(object):
         
 class Item(object):
     def __init__(self):
-        self.sprite = Entity.Sprite()
+        self.sprite = Render.Sprite()
     
     
     
