@@ -23,7 +23,7 @@ class Entity(object):
         
         """
         #Sprite things
-        self.sprite = RenderSpriteTile(pos, frames, sprite_pos)
+        self.sprite = Render.SpriteTile(pos, frames, sprite_pos)
         self.health_bar = Render.Block(96, 20,(100,20,20))
         self.health_bar.pos = pos[0],pos[1]+1
         
@@ -110,7 +110,7 @@ class Entity(object):
 class Player(Entity):
     def __init__(self):
         Entity.__init__(self, (0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
-#         self.sprite = RenderSpriteTile((0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
+#         self.sprite = Render.SpriteTile((0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
 
         self.stats = Stats(8,14)
         self.stats.attr["con"].value = 16

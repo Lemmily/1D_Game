@@ -64,9 +64,6 @@ class Sprite(pg.sprite.Sprite):
         self.animation = None #self.stand_animation()
         self.pos = pos
         self.depth = 0
-        topleft = self.rect.topleft
-        self.rect = self.image.get_rect()
-        self.rect.topleft = topleft
                         
     def update(self, *args):
 #         if self.animation is not None:
@@ -101,7 +98,10 @@ class SpriteTile(Sprite):
     def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
         Sprite.__init__(self, pos, frames, sprite_pos)
         
+        topleft = self.rect.topleft
         self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = topleft
         
     def _get_pos(self):
         """check current pos of sprite on map"""
@@ -122,7 +122,11 @@ class SpriteTile(Sprite):
 class SpriteOther(Sprite): 
     def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], scaling = 4):
         Sprite.__init__(self, pos, frames, sprite_pos)
+        
+        topleft = self.rect.topleft
         self.image = pg.transform.scale(self.image, (R.tile_size*scaling,R.tile_size*scaling))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = topleft
         
         
     def _get_pos(self):
