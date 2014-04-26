@@ -5,6 +5,7 @@ Created on 13 Apr 2014
 '''
 
 import Entity
+import Render
 
 class Inventory(object):
     

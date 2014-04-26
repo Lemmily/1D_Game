@@ -90,10 +90,9 @@ class Game(object):
         self.background = pygame.Surface((1024, 768))
         self.background.fill(bg_colour)
         
-        self.inv_background = pygame.Surface((400, 500))
+        self.inv_background = pygame.Surface((300, 400))
         self.inv_background.fill(inv_bg_colour)
-        inv_slot = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0,1), [0,0])
-        self.inv_background.blit(inv_slot, (10,10))
+        
         
         self.dirties = None #holds the dirty bits for updating when rendered.
         
@@ -109,7 +108,6 @@ class Game(object):
         square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
         self.background.blit(square.image, square.rect.topleft)
         
-        
         for i in range(7):
             square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
             creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
@@ -117,7 +115,18 @@ class Game(object):
             self.background.blit(square.image, square.rect.topleft)
             self.sprites.add(creature.sprite, creature.health_bar)
         
-        
+        inv_slot = Render.SpriteOther((0,1), R.SPRITE_CACHE["data/floor_tiles_x24.png"], [0,0], 2)
+        counter = 0
+        xpos = 10
+        ypos = 10
+        for i in xrange(player.inventory.get_inv_size()):
+            self.inv_background.blit(inv_slot.image, (xpos+((i%5)*58),ypos))
+            counter += 1
+            if counter%5 == 0:
+                ypos += 58
+                xpos = 10
+                
+                
         stat_page_one = pg.Surface((400,510))
         stat_page_one.fill((40,50,80))
         
