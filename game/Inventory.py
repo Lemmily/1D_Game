@@ -29,7 +29,9 @@ class Inventory(object):
                          "ring2": None,
                          "neck": None
                          
-                         } #rings, amulets, gloves, quiver, possible "spell slots" 
+                         } #rings, amulets, gloves, quiver, possible "spell slots"
+        
+        #could have a bool for if equipment changed. and only re-check modifiers if True(like AC and possible buffs) 
         
     def get(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:

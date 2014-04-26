@@ -15,3 +15,16 @@ tile = 1, 0
 name = slime
 type= enemy
 tile = 2, 0
+
+
+
+###Template
+[base name]
+name = Possibly name generation rules.
+type = what category does it fit in?
+tilesheet = image file that the sprite is on
+tile = x,y sprite tile position on tilesheet.
+
+base_stats = ["str", "con", "dex", "int", "cha", "wis", "luc"]
+equipment slots = ["helmet","Torso", "Legs"] etc
+ 
