@@ -184,6 +184,7 @@ class Game(object):
                         Entity.ranged_combat(player, thing)
                         man_queue.enemy_turns(ap)
                     break
+                
         if m_pressed(3): #3 = mouse button right click
             for thing in queue:
                 if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
