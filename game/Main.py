@@ -36,6 +36,7 @@ stat_window_font = None
 black = 0, 0, 0
 white = 255, 255, 255
 bg_colour = 33, 100, 117 
+inv_bg_colour = 110, 110, 110
 
 stat_page_one = None
 stat_page_two = None
@@ -76,6 +77,11 @@ class Game(object):
         self.background = pygame.Surface((1024, 768))
         self.background.fill(bg_colour)
         
+        self.inv_background = pygame.Surface((400, 500))
+        self.inv_background.fill(inv_bg_colour)
+        inv_slot = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0,1), [0,0])
+        self.inv_background.blit(inv_slot, (10,10))
+        
         self.dirties = None #holds the dirty bits for updating when rendered.
         
         R.player = player = Entity.Player()
@@ -85,6 +91,7 @@ class Game(object):
         
         square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
         self.background.blit(square.image, square.rect.topleft)
+        
         
         for i in range(7):
             square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
@@ -175,7 +182,9 @@ class Game(object):
         
         #updates screen
         self.screen.blit(self.background, (0,0))
+        self.screen.blit(self.inv_background, (450,250))
         write_info(self)
+        write_inventory(self)
         pg.display.flip()
         # main game loop
         print self.screen.get_rect().height - 250 
@@ -279,6 +288,10 @@ def write_info(game):
     game.screen.blit(label, (180, 40))
     
     return pg.Rect((10,10),(400, 50))
+
+def write_inventory(game):
+    for i in player.inventory.get_inv():
+        slot = pygame.Rect(1000,1000,30,30)
     
 
 def write_stats_window(game):

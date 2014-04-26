@@ -19,8 +19,15 @@ class Inventory(object):
                          "torso": None, 
                          "legs": None, 
                          "head": None, 
-                         "left hand": None, 
-                         "right hand": None 
+                         "left hand": None, # left weapon/item
+                         "right hand": None, # right weapon/item
+                         "back": None,
+                         "backpack1": None,
+                         "backpack2"
+                         "belt": None,
+                         "ring1": None,
+                         "ring2": None,
+                         "neck": None
                          
                          } #rings, amulets, gloves, quiver, possible "spell slots" 
         
@@ -58,10 +65,17 @@ class Inventory(object):
         else:
             return 0
         
+    def get_inv_size(self):
+        size = len(self.slots)
+        return size
+    
+    def get_inv(self):
+        return self.slots
+        
         
 class Item(object):
     def __init__(self):
-        self.sprite = Entity.Sprite()
+        self.sprite = Render.Sprite()
     
     
     
