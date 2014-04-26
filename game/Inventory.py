@@ -77,8 +77,9 @@ class Inventory(object):
         
         
 class Item(object):
-    def __init__(self):
-        self.sprite = Render.Sprite()
+    def __init__(self, pos, frames, sprite_loc, name):
+        self.sprite = Render.Sprite(pos,frames,sprite_loc)
+        self.name = name
     
     
     

@@ -211,7 +211,6 @@ class Game(object):
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.inv_background, (450,250))
         write_info(self)
-        write_inventory(self)
         pg.display.flip()
         # main game loop
         print self.screen.get_rect().height - 250 
@@ -293,6 +292,11 @@ class Game(object):
                         self.screen.blit(cleaner,pg.Rect((10,250),(400, 510)))
                         
                         self.dirties.append(write_stats_window(self))
+                        
+                    if event.inventory:
+                        self.screen.blit(self.inv_background, (450,250))
+                        
+                        
                 
 
 def write_info(game):
@@ -315,11 +319,6 @@ def write_info(game):
     game.screen.blit(label, (180, 40))
     
     return pg.Rect((10,10),(400, 50))
-
-def write_inventory(game):
-    for i in player.inventory.get_inv():
-        slot = pygame.Rect(1000,1000,30,30)
-    
 
 def write_stats_window(game):
     print selected_monst
