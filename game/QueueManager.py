@@ -6,6 +6,7 @@ Created on 14 Apr 2014
 import pygame as pg
 import Reg as R
 import Entity 
+import Util
 
 from random import randint
 
@@ -18,11 +19,19 @@ class QueueManager(object):
         self.theme_floor = [1 for i in range(10)] #hold a numerical value to represent the theme for the tile
         
         
-    def add_entity(self, entity):
+    def add_entity(self, entity = None, pos = None, post = True):
         #TODO: picks an object or enemy to add to the end of the queue
         #for now just posts what it's given into the queue
-        
+        if entity == None:
+            if pos == None:
+                pos = (2 + len(self.queue)-1, 1)
+            entity = make_entity(pos)
         self.queue.append(entity)
+        
+        if post:
+            pg.event.post(pg.event.Event(R.DEADTHINGSEVENT, dead = [], new = [entity]))
+        else:
+            return entity
     
     def purge_the_dead(self, the_dead):
         for i in xrange(len(self.queue)):
@@ -37,8 +46,7 @@ class QueueManager(object):
         for i in xrange(len(the_dead)):
             #TODO: replace with self.add_entity()
             value = self.queue[len(self.queue)-1].sprite.pos[0] + 1 + i
-            creature = Entity.Creature([randint(0,2), 0], (value ,1))
-            self.queue.append(creature)
+            creature = self.add_entity(pos=(value ,1), post = False)
             replacements.append(creature)
         
         pg.event.post(pg.event.Event(R.DEADTHINGSEVENT, dead = the_dead, new = replacements))
@@ -71,4 +79,20 @@ class QueueManager(object):
         #purge any dead things... or at least tell the game there are dead things.
         if len(the_dead) > 0:
             self.purge_the_dead(the_dead)
-            
+
+#chances that monster will be made.            
+chances = {
+           1:{
+             "goblin": 10,
+             "slime": 20,
+             "pirate": 10,
+             "orc": 5
+             },
+           2:{}
+           }      
+def make_entity(pos, level = 1):
+    _type = Util.random_choice(chances[level])
+    
+    entity = Entity.Creature(pos, R.MONSTER_INFO[_type])
+    
+    return entity

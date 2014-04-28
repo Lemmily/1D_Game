@@ -3,8 +3,8 @@ Created on 13 Apr 2014
 
 @author: Emily
 '''
-
-import Entity
+import Reg as R
+import Render
 
 class Inventory(object):
     
@@ -25,6 +25,8 @@ class Inventory(object):
                          } #rings, amulets, gloves, quiver, possible "spell slots"
         
         #could have a bool for if equipment changed. and only re-check modifiers if True(like AC and possible buffs) 
+        thing=R.ITEM_INFO["armour"]["robe"]
+        self.item = Item(thing)
         
     def get(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:
@@ -38,7 +40,8 @@ class Inventory(object):
             self.contents[_type] += amount
         else:
             self.contents[_type] = amount
-    
+            
+            
     
     def has(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:
@@ -62,8 +65,15 @@ class Inventory(object):
         
         
 class Item(object):
-    def __init__(self):
-        self.sprite = Render.Sprite()
-    
+    def __init__(self, dict, **kwargs):
+        self.sprite = Render.Sprite(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"])
+        
+        for key, value in dict.iteritems():
+            if key == "tilesheet" or key =="tile":
+                pass
+            else:
+                setattr(self, key, value)
+        
+        print self
     
     

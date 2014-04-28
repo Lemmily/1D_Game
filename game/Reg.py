@@ -23,10 +23,13 @@ tes = None
 
 SPRITE_CACHE = None
 
-MONSTER_INFO = None
+MONSTER_INFO = {}
 
+ITEM_INFO = {}
 
 ## USER EVENTS
 
 DEADTHINGSEVENT = pg.USEREVENT + 1
 UIEVENT = pg.USEREVENT + 2 #FLAGS: health, stats
+
+

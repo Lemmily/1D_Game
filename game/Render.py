@@ -93,7 +93,14 @@ class Sprite(pg.sprite.Sprite):
 
         self.rect.move_ip(dx, dy)
         self.depth = self.rect.midbottom[1]
- 
+        
+    def resize(self,width, height):
+        """resize to W x H in pixels"""
+        topleft = self.rect.topleft
+        self.image = pg.transform.scale(self.image, (int(round(width)) ,int(round(height))))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = topleft
+        
 class SpriteTile(Sprite):
     def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
         Sprite.__init__(self, pos, frames, sprite_pos)
@@ -159,9 +166,6 @@ class Block(Sprite):
         # Update the position of this object by setting the values of rect.x and rect.y
         self.rect = self.image.get_rect()
         
-    def resize(self,width, height):
-        """resize to W x H in pixels"""
-        self.image = pg.transform.scale(self.image, (int(round(width)) ,int(round(height))))
         
 class DummyObject(Sprite):
     def __init__(self, frames = None, pos=(0,0), sprite = [0,0]):

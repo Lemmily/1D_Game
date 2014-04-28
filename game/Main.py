@@ -5,30 +5,31 @@ Created on 12 Apr 2014
 '''
 
 from random import randint
-import ConfigParser
 import Entity
 import QueueManager
 import Reg as R
 import Render
 import Util
-import cProfile
-import pickle
-import pstats
 import pygame as pg
 import pygame.locals
-import shelve
 import sys
 
 
+from monsters import monsters
+from items import weapons, armour
 
 ###
 ##SAVEGAME TESTING
 ###
+import pickle
+import shelve
 
 
 ###
 # PROFILING THINGS
 ###
+import pstats
+import cProfile
 
 
 
@@ -56,18 +57,7 @@ def attack_next():
         return False
     
 
-def load_files(filename = "data/monsters"):
-    
-    parser = ConfigParser.ConfigParser()
-    parser.read(filename)
-    monsters = {}
-    
-    for section in parser.sections():
-        desc = dict(parser.items(section))
-        monsters[section] = desc
-        
-    return monsters
-    
+
 
 class Game(object):
     
@@ -92,10 +82,13 @@ class Game(object):
         self.dirties = None #holds the dirty bits for updating when rendered.
         
         
-        R.MONSTER_INFO = load_files()
+        R.MONSTER_INFO = monsters
+        
+        R.ITEM_INFO["weapons"] = weapons
+        R.ITEM_INFO["armour"] = armour
         
         
-        R.player = player = Entity.Player()
+        R.player = player = Entity.Player(type = "player")
         self.sprites.add(player.sprite, player.health_bar)
         R.man_queue = man_queue = QueueManager.QueueManager()
         man_queue.queue = queue = []
@@ -103,12 +96,12 @@ class Game(object):
         square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
         self.background.blit(square.image, square.rect.topleft)
         
-        for i in range(7):
+        for i in range(8):
             square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
-            creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
-            man_queue.add_entity(creature)
+#             creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
+#             man_queue.add_entity(creature)
+            man_queue.add_entity(pos = (2 + i ,1))
             self.background.blit(square.image, square.rect.topleft)
-            self.sprites.add(creature.sprite, creature.health_bar)
         
         
         stat_page_one = pg.Surface((400,510))
@@ -116,7 +109,6 @@ class Game(object):
         
         stat_page_two = pg.Surface((400,510))
         stat_page_two.fill((80,50,40))
-        
         
         stat_page_two.blit(stat_page_one, pg.Rect((200,0),(200,30)),pg.Rect((200,0),(200,30)))
         stat_page_one.blit(stat_page_two, pg.Rect((0,0),(200,30)),pg.Rect((0,0),(200,30)))
@@ -275,7 +267,11 @@ class Game(object):
                         self.screen.blit(cleaner,pg.Rect((10,250),(400, 510)))
                         
                         self.dirties.append(write_stats_window(self))
-                
+                        
+                    
+                    if hasattr(event,"inventory"):
+                        #TODO: inventory stuffs
+                        pass
 
 def write_info(game):
     '''
@@ -304,7 +300,7 @@ def write_stats_window(game):
     stat_page = pg.Surface(stat_page_one.get_rect().size)
     
     stat_page.blit(stat_page_one, (0, 0))
-    label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (199,178,153))
+    label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (200,100,100))
     stat_page.blit(label, (10, 30))
     
     i = 0
@@ -315,9 +311,11 @@ def write_stats_window(game):
         i += 1
         
     if selected_monst is not None:
-        label = gamefont.render("Health: " + str(selected_monst.hp) + "/" + str(selected_monst.max_hp), 1, (199,178,153))
+        label = gamefont.render(selected_monst.type.capitalize(), 1, (199,178,153))
         stat_page.blit(label, (200, 30))
-        i = 0
+        label = gamefont.render("Health: " + str(selected_monst.hp) + "/" + str(selected_monst.max_hp), 1, (200,100,100))
+        stat_page.blit(label, (200, 50))
+        i = 2
         for stat in selected_monst.stats.attr.keys():
             attr = selected_monst.stats.attr[stat]
             label = gamefont.render(attr.name + ": " + str(attr.value), 1, (250,178,250))

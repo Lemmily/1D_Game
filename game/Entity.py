@@ -13,6 +13,7 @@ from Inventory import Inventory
 
 
 import Render 
+import Util
 
    
         
@@ -96,6 +97,8 @@ class Entity(object):
     ###   TODO: Deploy stat changes.
     ######
     def get_attack(self):
+        #weapon damage - eg 1d6 , plus weapon attr modifier(Str/Dex) 
+        
         return self.melee_attack_dmg    
     
     def get_ranged_damage(self):
@@ -108,13 +111,14 @@ class Entity(object):
 
 
 class Player(Entity):
-    def __init__(self):
+    def __init__(self, **kwargs):
         Entity.__init__(self, (0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
 #         self.sprite = Render.SpriteTile((0,1), R.SPRITE_CACHE["data/monsters_x24.png"], [1,0])
 
+        self.type = kwargs.get("type")
         self.stats = Stats(8,14)
         self.stats.attr["con"].value = 16
-        self.base_hp = self.stats.attr["con"].value*11 #TODO: Dice Roll
+        self.base_hp = Util.multi_roll_dice(self.stats.attr["con"].value, 6) + self.stats.attr["con"].value
         self.hp = self.max_hp
         self.max_mana = self.stats.attr["int"].value*11
         self.mana = self.max_mana
@@ -137,16 +141,26 @@ class Player(Entity):
         pg.event.post(pg.event.Event(R.UIEVENT, health=True, stats = False))
         
 class Creature(Entity):
-    
-    def __init__(self, sprite_pos, pos):
-        Entity.__init__(self, pos, R.SPRITE_CACHE["data/monsters_x24.png"], sprite_pos)
+    def __init__(self, pos, mons_dict):
+        
+        
+        self.type = mons_dict["type"]
+        tilesheet = mons_dict["tilesheet"]
+        try:
+            Entity.__init__(self, pos, R.SPRITE_CACHE[tilesheet], mons_dict["tile"])
+        except:
+            print "uhuhhhh " + tilesheet 
         #self.sprite = RenderSpriteTile(pos, R.SPRITE_CACHE["data/monsters_x24.png"], sprite_pos)
         
-        self.stats = Stats(3,9)
+        stats = mons_dict["base_stats"]
+        if len(stats) < 1:
+            self.stats = Stats(3,9)
+        else:
+            self.stats = Stats(base = stats)
         
-        self.base_hp = self.stats.attr["con"].value*11
+        self.base_hp = Util.multi_roll_dice(self.stats.attr["con"].value, 5) + self.stats.attr["con"].value
         self.hp = self.max_hp
-        self.max_mana = self.stats.attr["int"].value*11
+        self.max_mana = Util.multi_roll_dice(self.stats.attr["int"].value, 3)
         self.mana = self.max_mana
         
         self.action_points = randint(0,30)  #will start with one attack worth of AP
@@ -228,11 +242,22 @@ class Creature(Entity):
 attributes = ["str", "con", "dex", "int", "cha", "wis", "luc"]
             
 class Stats:
-    def __init__(self, _min, _max):
+    def __init__(self, _min=0, _max=0, base = None):
         self.attr = {}
-        for stat in attributes:
-            self.attr[stat] = Attribute(stat,randint(_min,_max))
+        if base != None:
+            self.attr = self.from_base(base)
+        else:
+            for stat in attributes:
+                self.attr[stat] = Attribute(stat,randint(_min,_max))
             
+    def from_base(self, base):
+        i = 0
+        attr = {}
+        for stat in attributes:
+            attr[stat] = Attribute(stat, base[1] + randint(-2,2))
+            i += 1
+        return attr
+    
 class Attribute():
     def __init__(self, name, value):
         self.name = name
@@ -255,7 +280,7 @@ class Attribute():
         
 def combat(attacker, defender):
     '''
-    melee combat for attacker(player) and defender(creep in queue pos 0)
+    melee combat for attacker(player) and defender
     melee combat damage based on player strength attribute; weapon equipped; player skill points with chosen weapon; crit damage
     crit damage currently defaulted to 10*base damage -----to be refined
     crit chance currently 10% chance with modifier of player dexterity attribute ----to be refined
