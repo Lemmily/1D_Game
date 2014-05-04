@@ -3,8 +3,10 @@ Created on 13 Apr 2014
 
 @author: Emily
 '''
+
 import Reg as R
 import Render
+from pygame.sprite import RenderUpdates
 
 class Inventory(object):
     
@@ -19,14 +21,22 @@ class Inventory(object):
                          "torso": None, 
                          "legs": None, 
                          "head": None, 
-                         "left hand": None, 
-                         "right hand": None 
+                         "left hand": None, # left weapon/item
+                         "right hand": None, # right weapon/item
+                         "back": None,
+                         "backpack1": None,
+                         "backpack2"
+                         "belt": None,
+                         "ring1": None,
+                         "ring2": None,
+                         "neck": None
                          
                          } #rings, amulets, gloves, quiver, possible "spell slots"
         
         #could have a bool for if equipment changed. and only re-check modifiers if True(like AC and possible buffs) 
         thing=R.ITEM_INFO["armour"]["robe"]
-        self.item = Item(thing)
+        item = Item(thing)
+        self.sprite_bag = [item]
         
     def get(self, _type):
         if self.contents.has_key(_type) and self.contents[_type] > 0:
@@ -63,6 +73,13 @@ class Inventory(object):
         else:
             return 0
         
+    def get_inv_size(self):
+        size = len(self.slots)
+        return size
+    
+    def get_inv(self):
+        return self.slots
+        
         
 class Item(object):
     def __init__(self, dict, **kwargs):
@@ -75,5 +92,4 @@ class Item(object):
                 setattr(self, key, value)
         
         print self
-    
     

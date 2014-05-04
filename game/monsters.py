@@ -56,3 +56,19 @@ monsters = {
 }
 
 
+# class Component():
+#   """XML is <tag>text</tag>"""
+#   def init(self, XMLRoot):
+#     for prop in XMLRoot:
+#       setattr(self, prop.tag, Utility.convert(prop.text))
+#       
+# class BodyComponent(Component):
+#   def init(self, XMLRoot):
+#     partNodes = XMLRoot.findAll("PartComponent")
+#     for partNode in partNodes:
+#       part = PartComponent(self.entity, self)
+#       part.init(partNode)
+#       self.parts.append(part)
+#       
+
+

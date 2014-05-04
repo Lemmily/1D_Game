@@ -58,3 +58,14 @@ armour = {
                     "armour": 3
                     }
 }
+
+potions = {
+           
+        "healing": {
+                    "wearable": {},
+                    "slot": None,
+                    "status": [STATE.CURSED, STATE.UNCURSED, STATE.BLESSED],
+                    "on use": POTION.HEAL_NORMAL
+                    }
+           
+           }

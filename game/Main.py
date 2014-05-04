@@ -39,6 +39,7 @@ stat_window_font = None
 black = 0, 0, 0
 white = 255, 255, 255
 bg_colour = 33, 100, 117 
+inv_bg_colour = 110, 110, 110
 
 stat_page_one = None
 stat_page_two = None
@@ -79,6 +80,10 @@ class Game(object):
         self.background = pygame.Surface((1024, 768))
         self.background.fill(bg_colour)
         
+        self.inv_background = pygame.Surface((300, 400))
+        self.inv_background.fill(inv_bg_colour)
+        
+        
         self.dirties = None #holds the dirty bits for updating when rendered.
         
         
@@ -103,7 +108,18 @@ class Game(object):
             man_queue.add_entity(pos = (2 + i ,1))
             self.background.blit(square.image, square.rect.topleft)
         
-        
+        inv_slot = Render.SpriteOther((0,1), R.SPRITE_CACHE["data/floor_tiles_x24.png"], [0,0], 2)
+        counter = 0
+        xpos = 10
+        ypos = 10
+        for i in xrange(player.inventory.get_inv_size()):
+            self.inv_background.blit(inv_slot.image, (xpos+((i%5)*58),ypos))
+            counter += 1
+            if counter%5 == 0:
+                ypos += 58
+                xpos = 10
+                
+                
         stat_page_one = pg.Surface((400,510))
         stat_page_one.fill((40,50,80))
         
@@ -145,6 +161,9 @@ class Game(object):
         if pressed(pg.K_s):
             pg.event.post(pg.event.Event(R.UIEVENT, stats = True, health = False))
         
+        if pressed(pg.K_i):
+            pg.event.post(pg.event.Event(R.UIEVENT, stats = False, health = False, inventory=True))
+            
         if pressed(pg.K_g):
             if player.mana > player.heal_spell_cost:
                 heal = randint(5,10)
@@ -185,6 +204,7 @@ class Game(object):
         
         #updates screen
         self.screen.blit(self.background, (0,0))
+        self.screen.blit(self.inv_background, (450,250))
         write_info(self)
         pg.display.flip()
         # main game loop
@@ -268,10 +288,20 @@ class Game(object):
                         
                         self.dirties.append(write_stats_window(self))
                         
-                    
-                    if hasattr(event,"inventory"):
-                        #TODO: inventory stuffs
-                        pass
+
+                    if hasattr(event, "inventory"):
+                        self.screen.blit(self.inv_background, (450,250))
+                        surface = pg.Surface((300, 400))
+#                         #player.inventory.sprite_bag.clear(self.screen, self.inv_background)
+#                         player.inventory.sprite_bag.draw(self.screen)
+#                         
+#                         self.screen.blit(surface, (450,250))
+                        for item in player.inventory.sprite_bag:
+                            self.screen.blit(item.sprite.image, (450+item.sprite.pos[0],250+item.sprite.pos[1]))
+                            
+                        self.dirties.append(pg.Rect((450,250),(300, 400)))
+                        
+                        
 
 def write_info(game):
     '''
@@ -293,7 +323,6 @@ def write_info(game):
     game.screen.blit(label, (180, 40))
     
     return pg.Rect((10,10),(400, 50))
-    
 
 def write_stats_window(game):
     print selected_monst

@@ -19,8 +19,9 @@ class MONS_ATTK(Enum):
 
 
 class STATE(Enum):
-    CURSED = 28
-    UNCURSED = 29
+    BLESSED = 27
+    UNCURSED = 28
+    CURSED = 29
 
 
 class RUNE(Enum):
@@ -42,3 +43,8 @@ class EQ():
     
     WPN_1HAND = 110
     WPN_2HAND = 111
+    
+    
+class POTION():
+    HEAL_NORMAL = 200
+    POISON = 201

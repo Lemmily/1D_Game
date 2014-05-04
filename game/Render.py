@@ -102,7 +102,7 @@ class Sprite(pg.sprite.Sprite):
         self.rect.topleft = topleft
         
 class SpriteTile(Sprite):
-    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0):
         Sprite.__init__(self, pos, frames, sprite_pos)
         
         topleft = self.rect.topleft
@@ -113,7 +113,7 @@ class SpriteTile(Sprite):
     def _get_pos(self):
         """check current pos of sprite on map"""
         #tiles are 100 wide, but buffer of 10 between them
-        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+        return (self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
     
     def _set_pos(self, pos):
         """Set the position by the TILE POSITION X,Y """
@@ -121,7 +121,7 @@ class SpriteTile(Sprite):
 #             x_tens = pos[0]-1
 #         else:
 #             x_tens = 0
-        self.rect.topleft = pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH
+        self.rect.topleft = pos[0]*(R.MAP_TILE_WIDTH + self.padding), pos[1]*(R.MAP_TILE_WIDTH + self.padding)
         
         self.depth = 0 #self.rect.midbottom[1]
         
