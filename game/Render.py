@@ -102,11 +102,11 @@ class Sprite(pg.sprite.Sprite):
         self.rect.topleft = topleft
         
 class SpriteTile(Sprite):
-    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0):
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0, scaling = 4):
         Sprite.__init__(self, pos, frames, sprite_pos)
         
         topleft = self.rect.topleft
-        self.image = pg.transform.scale(self.image, (R.tile_size*4,R.tile_size*4))
+        self.image = pg.transform.scale(self.image, (R.tile_size*scaling,R.tile_size*scaling))
         self.rect = self.image.get_rect()
         self.rect.topleft = topleft
         

@@ -16,7 +16,7 @@ import sys
 
 
 from monsters import monsters
-from items import weapons, armour
+from items import weapons, armour, potions
 
 ###
 ##SAVEGAME TESTING
@@ -91,6 +91,7 @@ class Game(object):
         
         R.ITEM_INFO["weapons"] = weapons
         R.ITEM_INFO["armour"] = armour
+        R.ITEM_INFO["potions"] = potions
         
         
         R.player = player = Entity.Player(type = "player")
@@ -297,7 +298,7 @@ class Game(object):
 #                         
 #                         self.screen.blit(surface, (450,250))
                         for item in player.inventory.sprite_bag:
-                            self.screen.blit(item.sprite.image, (450+item.sprite.pos[0],250+item.sprite.pos[1]))
+                            self.screen.blit(item.sprite.image, (460+item.sprite.pos[0],260+item.sprite.pos[1]))
                             
                         self.dirties.append(pg.Rect((450,250),(300, 400)))
                         
