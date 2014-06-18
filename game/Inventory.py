@@ -34,16 +34,16 @@ class Inventory(object):
                          } #rings, amulets, gloves, quiver, possible "spell slots"
         
         #could have a bool for if equipment changed. and only re-check modifiers if True(like AC and possible buffs) 
-        
+        self.sprite_bag = []
         item = Item(R.ITEM_INFO["weapons"]["longsword"])
-        self.sprite_bag = [item]
-        item = Item(R.ITEM_INFO["armour"]["robe"])
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["armour"]["leather"])
+        item = Item(R.ITEM_INFO["armour"]["robe"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["weapons"]["dagger"])
+        item = Item(R.ITEM_INFO["armour"]["leather"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["potions"]["healing"])
+        item = Item(R.ITEM_INFO["weapons"]["dagger"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        self.sprite_bag.append(item)
+        item = Item(R.ITEM_INFO["potions"]["healing"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
         self.sprite_bag.append(item)
         
     def get(self, _type):
@@ -88,10 +88,15 @@ class Inventory(object):
     def get_inv(self):
         return self.slots
         
-        
+    def get_item_pos(self, item):
+        index = self.sprite_bag.index(item)
+        #(((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        x = 0
+        y = 0
+        return(x,y)
 class Item(object):
-    def __init__(self, dict, **kwargs):
-        self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], padding = 10, scaling = 2)
+    def __init__(self, dict, posi = (0,0), **kwargs):
+        self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], padding = 10, scaling = 2, pos = posi)
         
         for key, value in dict.iteritems():
             if key == "tilesheet" or key =="tile":

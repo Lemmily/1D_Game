@@ -72,15 +72,10 @@ class Sprite(pg.sprite.Sprite):
         
     def _get_pos(self):
         """check current pos of sprite on map"""
-        #tiles are 100 wide, but buffer of 10 between them
         return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
     
     def _set_pos(self, pos):
         """Set the position and depth of the sprite on the map."""
-#         if pos[0] > 0:
-#             x_tens = pos[0]-1
-#         else:
-#             x_tens = 0
         self.rect.topleft = pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH
         
         self.depth = 0 #self.rect.midbottom[1]
@@ -112,16 +107,11 @@ class SpriteTile(Sprite):
         
     def _get_pos(self):
         """check current pos of sprite on map"""
-        #tiles are 100 wide, but buffer of 10 between them
         return (self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
     
     def _set_pos(self, pos):
-        """Set the position by the TILE POSITION X,Y """
-#         if pos[0] > 0:
-#             x_tens = pos[0]-1
-#         else:
-#             x_tens = 0
-        self.rect.topleft = pos[0]*(R.MAP_TILE_WIDTH + self.padding), pos[1]*(R.MAP_TILE_WIDTH + self.padding)
+        """Set the position by the TILE POSITION X,Y with INCLUDED padding """
+        self.rect.topleft = self.padding + pos[0]*(R.MAP_TILE_WIDTH + self.padding), self.padding + pos[1]*(R.MAP_TILE_WIDTH + self.padding)
         
         self.depth = 0 #self.rect.midbottom[1]
         

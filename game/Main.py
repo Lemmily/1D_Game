@@ -109,12 +109,14 @@ class Game(object):
             man_queue.add_entity(pos = (2 + i ,1))
             self.background.blit(square.image, square.rect.topleft)
         
+        
+        #get the bg tile for inv slot.
         inv_slot = Render.SpriteOther((0,1), R.SPRITE_CACHE["data/floor_tiles_x24.png"], [0,0], 2)
         counter = 0
         xpos = 10
         ypos = 10
         for i in xrange(player.inventory.get_inv_size()):
-            self.inv_background.blit(inv_slot.image, (xpos+((i%5)*58),ypos))
+            self.inv_background.blit(inv_slot.image, (xpos+((i%5)*58),ypos)) #blit the inv slot at intervals.
             counter += 1
             if counter%5 == 0:
                 ypos += 58
@@ -267,8 +269,10 @@ class Game(object):
                 
                 elif event.type == R.DEADTHINGSEVENT:
                     print "hello my pretties, welcome to death"
+                    #remove all the dead entities sprites
                     for obj in event.dead:
                         self.sprites.remove(obj.sprite, obj.health_bar)
+                    #add all the new entity sprites.
                     for obj in event.new:
                         self.sprites.add(obj.sprite, obj.health_bar)
                         
@@ -297,8 +301,10 @@ class Game(object):
 #                         player.inventory.sprite_bag.draw(self.screen)
 #                         
 #                         self.screen.blit(surface, (450,250))
-                        for item in player.inventory.sprite_bag:
-                            self.screen.blit(item.sprite.image, (460+item.sprite.pos[0],260+item.sprite.pos[1]))
+                        for i in range(len(player.inventory.sprite_bag)):
+                            item = player.inventory.sprite_bag[i]
+                            slot_pos = (460+item.sprite.pos[0],260+item.sprite.pos[1])
+                            self.screen.blit(item.sprite.image, slot_pos)
                             
                         self.dirties.append(pg.Rect((450,250),(300, 400)))
                         
