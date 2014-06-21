@@ -25,7 +25,7 @@ class Inventory(object):
                          "right hand": None, # right weapon/item
                          "back": None,
                          "backpack1": None,
-                         "backpack2"
+                         "backpack2":None,
                          "belt": None,
                          "ring1": None,
                          "ring2": None,
@@ -37,11 +37,11 @@ class Inventory(object):
         self.sprite_bag = []
         item = Item(R.ITEM_INFO["weapons"]["longsword"])
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["armour"]["robe"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        item = Item(R.ITEM_INFO["armour"]["robe"], posi = (1,0))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["armour"]["leather"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        item = Item(R.ITEM_INFO["armour"]["leather"], posi = (2,0))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["weapons"]["dagger"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        item = Item(R.ITEM_INFO["weapons"]["dagger"], posi = (3,0))
         self.sprite_bag.append(item)
         item = Item(R.ITEM_INFO["potions"]["healing"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
         self.sprite_bag.append(item)
@@ -96,13 +96,14 @@ class Inventory(object):
         return(x,y)
 class Item(object):
     def __init__(self, dict, posi = (0,0), **kwargs):
-        self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], padding = 10, scaling = 2, pos = posi)
+        self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], 
+                                        padding = 10, scaling = 2, pos = posi, offsetX = 460, offsetY = 260)
         
         for key, value in dict.iteritems():
-            if key == "tilesheet" or key =="tile":
+            if key == "tilesheet" or key =="tile":#ignorable keys
                 pass
             else:
                 setattr(self, key, value)
         
-        print self
+        #print self
     

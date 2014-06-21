@@ -97,7 +97,13 @@ class Sprite(pg.sprite.Sprite):
         self.rect.topleft = topleft
         
 class SpriteTile(Sprite):
-    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0, scaling = 4):
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0, scaling = 4, offsetX = 0, offsetY = 0):
+        
+        
+        self.padding = padding
+        self.offsetX = offsetX
+        self.offsetY = offsetY
+        
         Sprite.__init__(self, pos, frames, sprite_pos)
         
         topleft = self.rect.topleft
@@ -105,15 +111,23 @@ class SpriteTile(Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = topleft
         
+      
+    def get_tile_pos(self):
+        return (self.offsetX + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offsetY + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+    
     def _get_pos(self):
-        """check current pos of sprite on map"""
-        return (self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+        """check current pos of sprite on map, returns as TILE position"""
+        #return (self.offset + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offset + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+        return (self.rect.x, self.rect.y)
     
     def _set_pos(self, pos):
-        """Set the position by the TILE POSITION X,Y with INCLUDED padding """
-        self.rect.topleft = self.padding + pos[0]*(R.MAP_TILE_WIDTH + self.padding), self.padding + pos[1]*(R.MAP_TILE_WIDTH + self.padding)
+        """Set the position by the PIXEL POSITION X,Y with INCLUDED padding FROM the given TILE position. """
+        self.rect.topleft = (self.offsetX + pos[0]*(R.MAP_TILE_WIDTH + self.padding), #x
+                                        self.offsetY  + pos[1]*(R.MAP_TILE_WIDTH + self.padding)) #y
         
-        self.depth = 0 #self.rect.midbottom[1]
+        self.depth = 0 #self.rect.midbottom[1] # not used
+        
+    pos = property(_get_pos, _set_pos)
         
    
 class SpriteOther(Sprite): 
@@ -127,22 +141,28 @@ class SpriteOther(Sprite):
         
         
     def _get_pos(self):
-        """check current pos of sprite on map"""
+        """check current pos of sprite on screen as a PIXEL LOCATION"""
         #tiles are 100 wide, but buffer of 10 between them
-        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+        return (self.rect.x, self.rect.y)
     
     def _set_pos(self, pos):
         """Sets by the PIXEL LOCATION"""
         self.rect.topleft = pos[0], pos[1]
         
         self.depth = 0 #self.rect.midbottom[1]
+    pos = property(_get_pos, _set_pos)
  
+    @property
+    def tile_size(self):
+        return self.rect.w
  
  
 class Block(Sprite):
-    """ Solid colour rectangle"""
+    """ Solid colour rectangle
+        to set its position do blockInstance.pos = (0,0)
+    """
     # Constructor. Pass in the color of the block,
-    # and its x and y position
+    # and its width and height position
     def __init__(self, width, height, colour):
         # Call the parent class (Sprite) constructor
         pg.sprite.Sprite.__init__(self)

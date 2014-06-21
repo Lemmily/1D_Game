@@ -10,6 +10,7 @@ tile_size = 24
 MAP_TILE_WIDTH = 96
 MAP_TILE_HEIGHT = 96
 
+INV_TILE = 50
 
 player = None
 
