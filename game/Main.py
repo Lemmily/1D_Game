@@ -218,9 +218,9 @@ class Game(object):
             #self.screen.fill(bg_colour)
             #self.screen.blit(self.background,(0,0))
                              
-            cleaner = pg.Surface((1000, 40))
+            cleaner = pg.Surface((1024, 40))
             cleaner.fill(bg_colour)
-            self.screen.blit(cleaner, pg.Rect((10,200),(1000, 40)))
+            self.screen.blit(cleaner, pg.Rect((10,200),(1024, 40)))
             
             self.sprites.update() 
             self.sprites.draw(self.screen)
@@ -228,7 +228,7 @@ class Game(object):
             #check to see if we can do anything with the keys pressed or mouse pressed
             self.controls()
             
-            self.dirties =  [pg.Rect(0,96,1000, 140), pg.Rect((10,248),(400,510))] #entire area where monsters are and health bars.
+            self.dirties =  [pg.Rect(0,96,1024, 140), pg.Rect((10,248),(400,510))] #entire area where monsters are and health bars.
 
             #self.dirties.append(pg.Rect(0,200,1000, 40))
      
@@ -304,10 +304,10 @@ class Game(object):
                         for i in range(len(player.inventory.sprite_bag)):
                             item = player.inventory.sprite_bag[i]
                             slot_pos = [item.sprite.pos[0], item.sprite.pos[1]]
-                            slot_pos2 = [item.sprite.get_tile_pos()[0]*58, item.sprite.get_tile_pos()[1]]
-#                             slot_pos[0] += 460
-#                             slot_pos[1] += 260
-                            self.screen.blit(item.sprite.image, slot_pos)
+                            slot_pos2 = [item.sprite.tile_pos[0]*58, item.sprite.tile_pos[1]*58]
+                            slot_pos2[0] += 460
+                            slot_pos2[1] += 260
+                            self.screen.blit(item.sprite.image, slot_pos2)
                             
                         self.dirties.append(pg.Rect((450,250),(300, 400)))
                         

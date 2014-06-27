@@ -50,7 +50,7 @@ class Entity(object):
         self.has_ranged = False
         self.has_magic = False #only given mana attributes if this is true ?
         
-    def update_health(self, change):
+    def update_health(self, change, dmg_type = "true"): #TODO: dmg_type and resistances.
         print "updating health for " + self.__class__.__name__
         #make sure you can't heal a dead guy.
         if not self.dead and change != 0:
@@ -249,13 +249,32 @@ class Stats:
         else:
             for stat in attributes:
                 self.attr[stat] = Attribute(stat,randint(_min,_max))
+                
+        self.xp_level = 1
+        self.dead = False
+        self.base_hp = 10
+        self.hp = self.max_hp
+        self.melee_attack_dmg = 4
+        self.ranged_attack_dmg = 1
             
+    @property
+    def max_hp(self):
+        try:
+            con = self.attr["con"].value
+            value = self.base_hp 
+            value += ( max(con - 10, 0)/2) * self.xp_level
+            return value
+        
+        except:
+            return self.base_hp
+                    
     def from_base(self, base):
-        i = 0
+        """creates the stats from a set of base stats, these are stored in base in order of attributes."""
+        #i = 0
         attr = {}
         for stat in attributes:
             attr[stat] = Attribute(stat, base[1] + randint(-2,2))
-            i += 1
+            #i += 1
         return attr
     
 class Attribute():

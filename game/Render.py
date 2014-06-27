@@ -56,12 +56,17 @@ class SortedUpdates(pg.sprite.RenderUpdates):
 
 class Sprite(pg.sprite.Sprite):
     
-    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0]):
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], t_size = R.MAP_TILE_WIDTH):
         super(Sprite, self).__init__()
         self.frames = frames
-        self.image = frames[sprite_pos[0]][sprite_pos[1]]
+        if(self.frames != None):
+            self.image = frames[sprite_pos[0]][sprite_pos[1]]
+        else:
+            self.image = pg.Surface([t_size, t_size])
+            self.image.fill((100,20,20))
         self.rect = self.image.get_rect()
         self.animation = None #self.stand_animation()
+        self.tile_size = t_size
         self.pos = pos
         self.depth = 0
                         
@@ -72,16 +77,23 @@ class Sprite(pg.sprite.Sprite):
         
     def _get_pos(self):
         """check current pos of sprite on map"""
-        return (self.rect.x/R.MAP_TILE_WIDTH, self.rect.y/R.MAP_TILE_WIDTH)
+        return (self.rect.x/self.tile_size, self.rect.y/self.tile_size)
     
     def _set_pos(self, pos):
         """Set the position and depth of the sprite on the map."""
-        self.rect.topleft = pos[0]*R.MAP_TILE_WIDTH, pos[1]*R.MAP_TILE_WIDTH
+        self.rect.topleft = pos[0]*self.tile_size, pos[1]*self.tile_size
         
         self.depth = 0 #self.rect.midbottom[1]
 
     #define the property pos and let it have the above getters and setters.
     pos = property(_get_pos, _set_pos)
+    
+#     def _get_tile_size(self):
+#         return self._tilesize
+#     def _set_tile_size(self, size):
+#         self._tile_size = size
+#          
+#     tile_size = property(_get_tile_size, _set_tile_size)
 
     def move(self, dx, dy):
         """Change the position of the sprite on screen."""
@@ -97,14 +109,13 @@ class Sprite(pg.sprite.Sprite):
         self.rect.topleft = topleft
         
 class SpriteTile(Sprite):
-    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0, scaling = 4, offsetX = 0, offsetY = 0):
-        
+    def __init__(self, pos=(0,0), frames=None, sprite_pos = [0,0], padding = 0, scaling = 4, offsetX = 0, offsetY = 0, t_size = R.MAP_TILE_WIDTH):
         
         self.padding = padding
         self.offsetX = offsetX
         self.offsetY = offsetY
         
-        Sprite.__init__(self, pos, frames, sprite_pos)
+        Sprite.__init__(self, pos, frames, sprite_pos, t_size)
         
         topleft = self.rect.topleft
         self.image = pg.transform.scale(self.image, (R.tile_size*scaling,R.tile_size*scaling))
@@ -112,22 +123,40 @@ class SpriteTile(Sprite):
         self.rect.topleft = topleft
         
       
-    def get_tile_pos(self):
-        return (self.offsetX + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offsetY + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+    def _get_tile_pos(self):
+        """returns as TILE position, IGNORING the offset. position offsetX, offsetY is considered zero"""
+        #return (self.offsetX + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offsetY + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+        return ( self.rect.x/(self.tile_size+self.padding), self.rect.y/(self.tile_size + self.padding))
     
-    def _get_pos(self):
-        """check current pos of sprite on map, returns as TILE position"""
+    def _set_tile_pos(self, pos):
+        """Stores the position of the PIXEL POSITION X,Y with INCLUDED padding AND offset FROM the given TILE position. """
+        self.rect.topleft = (self.offsetX + pos[0]*(self.tile_size + self.padding), #x
+                                        self.offsetY  + pos[1]*(self.tile_size + self.padding)) #y
+        
+    tile_pos = property(_get_tile_pos, _set_tile_pos)
+    
+    def _get_pix_pos(self):
+        """check current pos of sprite on map, returns as PIXEL position"""
         #return (self.offset + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offset + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
-        return (self.rect.x, self.rect.y)
+        #return ( (self.rect.x - self.offsetX )/(R.MAP_TILE_WIDTH+self.padding), (self.rect.y - self.offsetY)/(R.MAP_TILE_WIDTH + self.padding))
+        return (self.rect.x + self.offsetX, self.rect.y + self.offsetY)
     
-    def _set_pos(self, pos):
-        """Set the position by the PIXEL POSITION X,Y with INCLUDED padding FROM the given TILE position. """
-        self.rect.topleft = (self.offsetX + pos[0]*(R.MAP_TILE_WIDTH + self.padding), #x
-                                        self.offsetY  + pos[1]*(R.MAP_TILE_WIDTH + self.padding)) #y
+    def _set_pix_pos(self, pos):
+        """Set the position by the PIXEL POSITION X,Y with INCLUDED padding AND offset FROM the given PIXEL position. """
+        self.rect.topleft = (pos[0]*(self.tile_size + self.padding), #x
+                                        pos[1]*(self.tile_size + self.padding)) #y
         
         self.depth = 0 #self.rect.midbottom[1] # not used
         
-    pos = property(_get_pos, _set_pos)
+    pos = property(_get_pix_pos, _set_pix_pos)
+    
+#     @property
+#     def tile_size(self):
+#         return self._tilesize;
+#     
+#     @tile_size.setter
+#     def _set_tile_size(self, size):
+#         self._tile_size = size;
         
    
 class SpriteOther(Sprite): 
@@ -152,11 +181,21 @@ class SpriteOther(Sprite):
         self.depth = 0 #self.rect.midbottom[1]
     pos = property(_get_pos, _set_pos)
  
-    @property
-    def tile_size(self):
-        return self.rect.w
+    
+#     def _get_tile_size(self):
+#         return self._tilesize;
+#     def _set_tile_size(self, size):
+#         self._tile_size = size;
+#     tile_size = property(_get_tile_size, _set_tile_size)
  
- 
+class SpriteGroup():
+    """
+    Want some kind of thing that can move the whole group of sprites and that you can position them relative to this.
+    """
+    def __init__(self):
+        pass
+
+
 class Block(Sprite):
     """ Solid colour rectangle
         to set its position do blockInstance.pos = (0,0)
@@ -165,8 +204,9 @@ class Block(Sprite):
     # and its width and height position
     def __init__(self, width, height, colour):
         # Call the parent class (Sprite) constructor
-        pg.sprite.Sprite.__init__(self)
-
+        Sprite.__init__(self)
+        
+        
         # Create an image of the block, and fill it with a colour.
         # This could also be an image loaded from the disk.
         self.image = pg.Surface([width, height])

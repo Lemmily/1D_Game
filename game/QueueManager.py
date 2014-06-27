@@ -21,11 +21,14 @@ class QueueManager(object):
         
     def add_entity(self, entity = None, pos = None, post = True):
         #TODO: picks an object or enemy to add to the end of the queue
-        #for now just posts what it's given into the queue
+        #post tells it whether it delivers the event straight away or returns the entity.
         if entity == None:
             if pos == None:
-                pos = (2 + len(self.queue)-1, 1)
+                pos = self.queue[len(self.queue)-1].sprite.pos[0] + 1
+                #pos = (2 + len(self.queue)-1, 1) #2 is the first start position
             entity = make_entity(pos)
+            
+        #add entity to the end of the queue.
         self.queue.append(entity)
         
         if post:

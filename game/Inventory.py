@@ -37,13 +37,13 @@ class Inventory(object):
         self.sprite_bag = []
         item = Item(R.ITEM_INFO["weapons"]["longsword"])
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["armour"]["robe"], posi = (1,0))
+        item = Item(R.ITEM_INFO["weapons"]["longsword"], posi = (1,0))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["armour"]["leather"], posi = (2,0))
+        item = Item(R.ITEM_INFO["weapons"]["longsword"], posi = (2,0))
         self.sprite_bag.append(item)
         item = Item(R.ITEM_INFO["weapons"]["dagger"], posi = (3,0))
         self.sprite_bag.append(item)
-        item = Item(R.ITEM_INFO["potions"]["healing"], posi = (((len(self.sprite_bag)-1)/ 5),((len(self.sprite_bag)-1 )%5)))
+        item = Item(R.ITEM_INFO["potions"]["healing"], posi = (0,3))
         self.sprite_bag.append(item)
         
     def get(self, _type):
@@ -98,7 +98,7 @@ class Inventory(object):
 class Item(object):
     def __init__(self, dict, posi = (0,0), **kwargs):
         self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], 
-                                        padding = 10, scaling = 2, pos = posi, offsetX = 460, offsetY = 260)
+                                        padding = 10, scaling = 2, pos = posi, offsetX = 460, offsetY = 260, t_size = 48)
         
         for key, value in dict.iteritems():
             if key == "tilesheet" or key =="tile":#ignorable keys
