@@ -307,7 +307,7 @@ class Game(object):
                             slot_pos2 = [item.sprite.get_tile_pos()[0]*58, item.sprite.get_tile_pos()[1]]
 #                             slot_pos[0] += 460
 #                             slot_pos[1] += 260
-                            self.screen.blit(item.sprite.image, slot_pos2)
+                            self.screen.blit(item.sprite.image, slot_pos)
                             
                         self.dirties.append(pg.Rect((450,250),(300, 400)))
                         

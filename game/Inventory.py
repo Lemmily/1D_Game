@@ -94,6 +94,7 @@ class Inventory(object):
         x = 0
         y = 0
         return(x,y)
+    
 class Item(object):
     def __init__(self, dict, posi = (0,0), **kwargs):
         self.sprite = Render.SpriteTile(frames = R.SPRITE_CACHE[dict["tilesheet"]], sprite_pos = dict["tile"], 
