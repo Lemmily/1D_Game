@@ -149,7 +149,7 @@ class Creature(Entity):
         try:
             Entity.__init__(self, pos, R.SPRITE_CACHE[tilesheet], mons_dict["tile"])
         except:
-            print "uhuhhhh " + tilesheet 
+            print "uhuhhhh " + tilesheet + "not there"
         #self.sprite = RenderSpriteTile(pos, R.SPRITE_CACHE["data/monsters_x24.png"], sprite_pos)
         
         stats = mons_dict["base_stats"]

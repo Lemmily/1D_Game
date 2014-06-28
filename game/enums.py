@@ -35,7 +35,7 @@ class RUNE(Enum):
 
 
 
-class EQ():
+class EQ(Enum):
     BODY = 100
     LEGS= 101
     HELMET = 102
@@ -45,6 +45,19 @@ class EQ():
     WPN_2HAND = 111
     
     
-class POTION():
+class POTION(Enum):
     HEAL_NORMAL = 200
     POISON = 201
+    
+    
+class DAMAGE_TYPE(Enum):
+    SLASHING = 400
+    PIERCING = 401
+    BLUDGEONING = 402
+    POISON = 403
+    FIRE = 404
+    LIGHTNING = 405
+    ICE = 406
+    HOLY = 407
+    NECRO = 408
+    

@@ -268,9 +268,10 @@ class Game(object):
                     self.mouse_pos = event.pos
                 
                 elif event.type == R.DEADTHINGSEVENT:
-                    print "hello my pretties, welcome to death"
+                    #print "hello my pretties, welcome to death"
                     #remove all the dead entities sprites
                     for obj in event.dead:
+                        print obj.type + "died a horrible death!"
                         self.sprites.remove(obj.sprite, obj.health_bar)
                     #add all the new entity sprites.
                     for obj in event.new:
@@ -304,10 +305,10 @@ class Game(object):
                         for i in range(len(player.inventory.sprite_bag)):
                             item = player.inventory.sprite_bag[i]
                             slot_pos = [item.sprite.pos[0], item.sprite.pos[1]]
-                            slot_pos2 = [item.sprite.tile_pos[0]*58, item.sprite.tile_pos[1]*58]
-                            slot_pos2[0] += 460
-                            slot_pos2[1] += 260
-                            self.screen.blit(item.sprite.image, slot_pos2)
+#                             slot_pos2 = [item.sprite.tile_pos[0]*58, item.sprite.tile_pos[1]*58]
+#                             slot_pos2[0] += 460
+#                             slot_pos2[1] += 260
+                            self.screen.blit(item.sprite.image, slot_pos)
                             
                         self.dirties.append(pg.Rect((450,250),(300, 400)))
                         

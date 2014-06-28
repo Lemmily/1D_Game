@@ -130,8 +130,8 @@ class SpriteTile(Sprite):
     
     def _set_tile_pos(self, pos):
         """Stores the position of the PIXEL POSITION X,Y with INCLUDED padding AND offset FROM the given TILE position. """
-        self.rect.topleft = (self.offsetX + pos[0]*(self.tile_size + self.padding), #x
-                                        self.offsetY  + pos[1]*(self.tile_size + self.padding)) #y
+        self.rect.topleft = (pos[0]*(self.tile_size + self.padding) + self.offsetX , #x
+                                         pos[1]*(self.tile_size + self.padding) + self.offsetY) #y
         
     tile_pos = property(_get_tile_pos, _set_tile_pos)
     
