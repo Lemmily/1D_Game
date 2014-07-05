@@ -6,9 +6,9 @@ Created on 12 Apr 2014
 
 from random import randint
 import Entity
-import QueueManager
-import Reg as R
-import Render
+import queue_manager
+import reg as R
+import render
 import Util
 import pygame as pg
 import pygame.locals
@@ -71,8 +71,8 @@ class Game(object):
         self.mouse_pos = None
         self.game_over = False
         self.overlays = pygame.sprite.RenderUpdates()
-        self.sprites = Render.SortedUpdates()
-        self.tiles = Render.SortedUpdates()
+        self.sprites = render.SortedUpdates()
+        self.tiles = render.SortedUpdates()
         
         
         self.ap = 0
@@ -96,14 +96,14 @@ class Game(object):
         
         R.player = player = Entity.Player(type = "player")
         self.sprites.add(player.sprite, player.health_bar)
-        R.man_queue = man_queue = QueueManager.QueueManager()
+        R.man_queue = man_queue = queue_manager.QueueManager()
         man_queue.queue = queue = []
         
-        square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
+        square = render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (0, 1), [0,0])
         self.background.blit(square.image, square.rect.topleft)
         
         for i in range(8):
-            square = Render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
+            square = render.DummyObject(R.SPRITE_CACHE["data/floor_tiles_x24.png"], (2 + i ,1), [0,0])
 #             creature = Entity.Creature([randint(0,2), 0], (2 + i ,1))
 #             man_queue.add_entity(creature)
             man_queue.add_entity(pos = (2 + i ,1))
@@ -111,7 +111,7 @@ class Game(object):
         
         
         #get the bg tile for inv slot.
-        inv_slot = Render.SpriteOther((0,1), R.SPRITE_CACHE["data/floor_tiles_x24.png"], [0,0], 2)
+        inv_slot = render.SpriteOther((0,1), R.SPRITE_CACHE["data/floor_tiles_x24.png"], [0,0], 2)
         counter = 0
         xpos = 10
         ypos = 10
@@ -211,7 +211,7 @@ class Game(object):
         write_info(self)
         pg.display.flip()
         # main game loop
-        print self.screen.get_rect().height - 250 
+#         print self.screen.get_rect().height - 250 
         while not self.game_over:
             #clear screen
             self.sprites.clear(self.screen, self.background) #test
@@ -381,7 +381,7 @@ def write_ap(game):
 
 if __name__=='__main__':
     #create sprite cache to hold images later
-    R.SPRITE_CACHE = Render.TileCache()
+    R.SPRITE_CACHE = render.TileCache()
     
     pg.init()
     #set the window size
