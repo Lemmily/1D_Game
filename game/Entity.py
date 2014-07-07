@@ -12,12 +12,12 @@ from random import randint
 from Inventory import Inventory
 
 import render
-import Util
+import util
 
 
 class Entity(object):
     def __init__(self, pos=(0, 0), frames=None, sprite_pos=[0, 0]):
-        """Base object for entities. Especially Player and Creature - may be used for map objects in future. 
+        """Base object for entities. Especially Player and Creature - may be used for map objects in future. but health type things will need to not be drawn.
         
         """
         # Sprite things
@@ -32,12 +32,12 @@ class Entity(object):
         # would be better as an @property method to aggregate all sources - stats, weapons, buffs.
         # ##
         self.stats = Stats(0, 0)
-        self.xp_level = 1
+        # self.xp_level = 1
         self.dead = False
-        self.base_hp = 10
-        self.hp = self.max_hp
-        self.melee_attack_dmg = 4
-        self.ranged_attack_dmg = 1
+        # self.base_hp = 10
+        # self.hp = self.max_hp
+        # self.melee_attack_dmg = 4
+        # self.ranged_attack_dmg = 1
 
         ###
         #END
@@ -51,17 +51,15 @@ class Entity(object):
         print "updating health for " + self.__class__.__name__
         # make sure you can't heal a dead guy.
         if not self.dead and change != 0:
-            self.hp = self.hp + change
-            if self.hp > self.max_hp:
-                self.hp = self.max_hp
+            self.stats.update_health(change)
 
         # check to see if it's dead
         self.check_alive()
 
         if not self.dead:
-            self.health_bar.resize(96.0 / self.max_hp * self.hp, 20)
+            self.health_bar.resize(96.0 / self.stats.max_hp * self.stats.hp, 20)
 
-        return self.hp
+        return self.stats.hp
 
     @property
     def max_hp(self):
@@ -72,10 +70,10 @@ class Entity(object):
             return value
 
         except:
-            return self.base_hp
+            return self.stats.base_hp
 
     def check_alive(self):
-        if self.hp <= 0:
+        if self.stats.hp <= 0:
             self.dead = True
             return False
         return True
@@ -95,7 +93,7 @@ class Entity(object):
     def get_attack(self):
         #weapon damage - eg 1d6 , plus weapon attr modifier(Str/Dex) 
 
-        return self.melee_attack_dmg
+        return self.stats.melee_attack_dmg
 
     def get_ranged_damage(self):
         return self.ranged_attack_dmg
@@ -113,8 +111,8 @@ class Player(Entity):
         self.type = kwargs.get("type")
         self.stats = Stats(8, 14)
         self.stats.attr["con"].value = 16
-        self.base_hp = Util.multi_roll_dice(self.stats.attr["con"].value, 6) + self.stats.attr["con"].value
-        self.hp = self.max_hp
+        self.stats.base_hp = util.multi_roll_dice(self.stats.attr["con"].value, 6) + self.stats.attr["con"].value
+        self.stats.hp = self.max_hp
         self.max_mana = self.stats.attr["int"].value * 11
         self.mana = self.max_mana
 
@@ -154,9 +152,9 @@ class Creature(Entity):
         else:
             self.stats = Stats(base=stats)
 
-        self.base_hp = Util.multi_roll_dice(self.stats.attr["con"].value, 5) + self.stats.attr["con"].value
-        self.hp = self.max_hp
-        self.max_mana = Util.multi_roll_dice(self.stats.attr["int"].value, 3)
+        self.stats.base_hp = util.multi_roll_dice(self.stats.attr["con"].value, 5) + self.stats.attr["con"].value
+        self.stats.hp = self.stats.max_hp
+        self.max_mana = util.multi_roll_dice(self.stats.attr["int"].value, 3)
         self.mana = self.max_mana
 
         self.action_points = randint(0, 30)  # will start with one attack worth of AP
@@ -217,7 +215,7 @@ class Creature(Entity):
             damage = self.get_ranged_damage()
             R.player.update_health(-damage)
             print "Enemy " + str(q_position) + " fires it's bow and does " + str(
-                damage) + " leaving the player with " + str(R.player.hp)
+                damage) + " leaving the player with " + str(R.player.stats.hp)
         else:
             print "Enemy " + str(q_position) + " fumbles its attack!"
 
@@ -230,7 +228,7 @@ class Creature(Entity):
             damage = self.get_attack()
             R.player.update_health(-damage)
             print "Enemy " + str(q_position) + " swings it's sword and does " + str(
-                damage) + " leaving the player with " + str(R.player.hp)
+                damage) + " leaving the player with " + str(R.player.stats.hp)
 
         else:
             print "Enemy " + str(q_position) + " fumbles its attack!"
@@ -265,6 +263,11 @@ class Stats:
 
         except:
             return self.base_hp
+
+    def update_health(self, change):
+        self.hp = self.hp + change
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
 
     def from_base(self, base):
         """creates the stats from a set of base stats, these are stored in base in order of attributes."""
@@ -306,6 +309,34 @@ class Attribute():
             elif self.value > 20:
                 return 6
 
+    def increase(self, amount = 1):
+        self.value += amount
+
+    def increase(self, amount = 1):
+        self.value -= 1
+        #TODO: check for lower threshold, if stat too low - DEATH
+
+
+
+
+
+
+
+
+
+##
+#
+# ACTIONS
+#
+##
+
+
+
+
+
+
+
+
 
 def combat(attacker, defender):
     '''
@@ -325,12 +356,12 @@ def combat(attacker, defender):
     if crit:
         damage = attacker.get_attack() + randint(1, 10) + crit_dmg
         defender.update_health(-damage)
-        print "You swing your weapon and crit, dealing " + str(damage) + " leaving the creature on " + str(defender.hp)
+        print "You swing your weapon and crit, dealing " + str(damage) + " leaving the creature on " + str(defender.stats.hp)
     else:
         damage = attacker.get_attack() + randint(1, 10)
         defender.update_health(-damage)
         #print defender.hp, "/", attacker.hp
-        print "You swing your weapon, dealing " + str(damage) + " leaving the creature on " + str(defender.hp)
+        print "You swing your weapon, dealing " + str(damage) + " leaving the creature on " + str(defender.stats.hp)
 
 
 def ranged_combat(attacker, defender):
@@ -350,12 +381,13 @@ def ranged_combat(attacker, defender):
         damage = attacker.get_ranged_damage() + randint(1, 10) + crit_dmg
         defender.update_health(-damage)
         # print defender.hp, "/", attacker.hp
-        print "You fire your bow and crit, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp)
+        print "You fire your bow and crit, dealing " + str(damage) + ", leaving the creature on " + str(defender.stats.hp)
     else:
         damage = attacker.get_ranged_damage() + randint(1, 10) + crit_dmg
         defender.update_health(-damage)
         # print defender.hp, "/", attacker.hp
-        print "You fire your bow, dealing " + str(damage) + ", leaving the creature on " + str(defender.hp)
+        print "You fire your bow, dealing " + str(damage) + ", leaving the creature on " + str(defender.stats.hp)
+
 
 
 def heal(Entity, amount):

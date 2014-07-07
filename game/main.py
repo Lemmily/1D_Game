@@ -5,11 +5,11 @@ Created on 12 Apr 2014
 '''
 
 from random import randint
-import Entity
+import entity
 import queue_manager
 import reg as R
 import render
-import Util
+import util
 import pygame as pg
 import pygame.locals
 import sys
@@ -51,7 +51,7 @@ selected_monst = None
 def attack_next():
     if len(queue) > 0:
         ap = player.base_attack_cost
-        Entity.combat(player, queue[0])
+        entity.combat(player, queue[0])
         man_queue.enemy_turns(ap)
         return True
     else:
@@ -94,7 +94,7 @@ class Game(object):
         R.ITEM_INFO["potions"] = potions
         
         
-        R.player = player = Entity.Player(type = "player")
+        R.player = player = entity.Player(type = "player")
         self.sprites.add(player.sprite, player.health_bar)
         R.man_queue = man_queue = queue_manager.QueueManager()
         man_queue.queue = queue = []
@@ -155,8 +155,8 @@ class Game(object):
             attack_next()
             
         if pressed(pg.K_h):
-            if Entity.use(player, "hp potion"):
-                Entity.heal(player, 10)
+            if entity.use(player, "hp potion"):
+                entity.heal(player, 10)
                 ap = 3 # arbitrary number of ap for potion use
                 man_queue.enemy_turns(ap)
                 self.ap += ap
@@ -170,7 +170,7 @@ class Game(object):
         if pressed(pg.K_g):
             if player.mana > player.heal_spell_cost:
                 heal = randint(5,10)
-                Entity.heal(player, heal)
+                entity.heal(player, heal)
                 player.update_mana(-30)
                 print "You cast your healing spell. Regaining "+ str(heal) + " health."
                         
@@ -184,11 +184,11 @@ class Game(object):
                 if thing.sprite.rect.collidepoint(self.mouse_pos[0], self.mouse_pos[1]):
                     if queue.index(thing) == 0:
                         ap = player.base_attack_cost/player.stats.attr["dex"].value
-                        Entity.combat(player, thing)
+                        entity.combat(player, thing)
                         man_queue.enemy_turns(ap)
                     else:
                         ap = player.base_ranged_attack_cost/player.stats.attr["dex"].value
-                        Entity.ranged_combat(player, thing)
+                        entity.ranged_combat(player, thing)
                         man_queue.enemy_turns(ap)
                     break
                 
@@ -210,6 +210,8 @@ class Game(object):
         self.screen.blit(self.inv_background, (450,250))
         write_info(self)
         pg.display.flip()
+
+        pg.event.post(pg.event.Event(R.UIEVENT, health = True, stats = True, inventory = True))
         # main game loop
 #         print self.screen.get_rect().height - 250 
         while not self.game_over:
@@ -263,18 +265,23 @@ class Game(object):
                 elif event.type == pg.KEYDOWN:
                     self.pressed_key = event.key
                     
-                elif event.type == pg.MOUSEBUTTONDOWN:
+                # elif event.type == pg.MOUSEBUTTONDOWN:
+                #     self.mouse_pressed = event.button
+                #     self.mouse_pos = event.pos
+
+                elif event.type == pg.MOUSEBUTTONUP:
                     self.mouse_pressed = event.button
                     self.mouse_pos = event.pos
-                
-                elif event.type == R.DEADTHINGSEVENT:
+
+                elif event.type == R.QUEUECHANGEEVENT:
                     #print "hello my pretties, welcome to death"
                     #remove all the dead entities sprites
                     for obj in event.dead:
-                        print obj.type + "died a horrible death!"
+                        print obj.type + " died a horrible death!"
                         self.sprites.remove(obj.sprite, obj.health_bar)
                     #add all the new entity sprites.
                     for obj in event.new:
+                        print obj.type + " arrived in the queue!"
                         self.sprites.add(obj.sprite, obj.health_bar)
                         
                 elif event.type == R.UIEVENT:
@@ -324,7 +331,7 @@ def write_info(game):
     graphical representation of percentage of mana remaining ---not yet implemented
     '''
     
-    label = gamefont.render("Health: " + str(player.hp), 1, (199,178,153))
+    label = gamefont.render("Health: " + str(player.stats.hp), 1, (199,178,153))
     game.screen.blit(label, (10, 10))
     label = gamefont.render("Health Potions: " + str(player.inventory.count("hp potion")), 1, (255,255,0))
     game.screen.blit(label, (10, 40))
@@ -340,7 +347,7 @@ def write_stats_window(game):
     stat_page = pg.Surface(stat_page_one.get_rect().size)
     
     stat_page.blit(stat_page_one, (0, 0))
-    label = gamefont.render("Health: " + str(player.hp) + "/" + str(player.max_hp), 1, (200,100,100))
+    label = gamefont.render("Health: " + str(player.stats.hp) + "/" + str(player.stats.max_hp), 1, (200,100,100))
     stat_page.blit(label, (10, 30))
     
     i = 0
@@ -353,7 +360,7 @@ def write_stats_window(game):
     if selected_monst is not None:
         label = gamefont.render(selected_monst.type.capitalize(), 1, (199,178,153))
         stat_page.blit(label, (200, 30))
-        label = gamefont.render("Health: " + str(selected_monst.hp) + "/" + str(selected_monst.max_hp), 1, (200,100,100))
+        label = gamefont.render("Health: " + str(selected_monst.stats.hp) + "/" + str(selected_monst.stats.max_hp), 1, (200,100,100))
         stat_page.blit(label, (200, 50))
         i = 2
         for stat in selected_monst.stats.attr.keys():

@@ -5,8 +5,8 @@ Created on 14 Apr 2014
 '''
 import pygame as pg
 import reg as R
-import Entity
-import Util
+from entity import Creature
+import util
 
 from random import randint
 
@@ -33,7 +33,7 @@ class QueueManager(object):
         self.queue.append(entity)
 
         if post:
-            pg.event.post(pg.event.Event(R.DEADTHINGSEVENT, dead=[], new=[entity]))
+            pg.event.post(pg.event.Event(R.QUEUECHANGEEVENT, dead=[], new=[entity]))
         else:
             return entity
 
@@ -53,7 +53,7 @@ class QueueManager(object):
             creature = self.add_entity(pos=(value, 1), post=False)
             replacements.append(creature)
 
-        pg.event.post(pg.event.Event(R.DEADTHINGSEVENT, dead=the_dead, new=replacements))
+        pg.event.post(pg.event.Event(R.QUEUECHANGEEVENT, dead=the_dead, new=replacements))
 
     def enemy_turns(self, players_action_ap):
         the_dead = []
@@ -94,8 +94,8 @@ chances = {
 
 
 def make_entity(pos, level=1):
-    _type = Util.random_choice(chances[level])
+    _type = util.random_choice(chances[level])
 
-    entity = Entity.Creature(pos, R.MONSTER_INFO[_type])
+    entity = Creature(pos, R.MONSTER_INFO[_type])
 
     return entity

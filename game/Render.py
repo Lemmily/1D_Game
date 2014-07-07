@@ -75,25 +75,33 @@ class Sprite(pg.sprite.Sprite):
         #             self.animation.next()
         pass
 
-    def _get_pos(self):
-        """check current pos of sprite on map"""
-        return (self.rect.x / self.tile_size, self.rect.y / self.tile_size)
+    def _get_tile_pos(self):
+        """returns as TILE position, IGNORING the offset. position offsetX, offsetY is considered zero"""
+        # return (self.offsetX + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offsetY + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+        return ( self.rect.x / (self.tile_size), self.rect.y / self.tile_size)
 
-    def _set_pos(self, pos):
-        """Set the position and depth of the sprite on the map."""
-        self.rect.topleft = pos[0] * self.tile_size, pos[1] * self.tile_size
+    def _set_tile_pos(self, pos):
+        """Stores the position of the PIXEL POSITION X,Y with INCLUDED padding AND offset FROM the given TILE position. """
+        self.rect.topleft = (pos[0] * (self.tile_size),  # x
+                             pos[1] * (self.tile_size))  # y
 
-        self.depth = 0  # self.rect.midbottom[1]
+    tile_pos = property(_get_tile_pos, _set_tile_pos)
 
-    # define the property pos and let it have the above getters and setters.
-    pos = property(_get_pos, _set_pos)
+    def _get_pix_pos(self):
+        """check current pos of sprite on map, returns as PIXEL position"""
+        # return (self.offset + self.rect.x/(R.MAP_TILE_WIDTH+self.padding), self.offset + self.rect.y/(R.MAP_TILE_WIDTH + self.padding))
+        #return ( (self.rect.x - self.offsetX )/(R.MAP_TILE_WIDTH+self.padding), (self.rect.y - self.offsetY)/(R.MAP_TILE_WIDTH + self.padding))
+        return (self.rect.x, self.rect.y )
 
-    #     def _get_tile_size(self):
-    #         return self._tilesize
-    #     def _set_tile_size(self, size):
-    #         self._tile_size = size
-    #
-    #     tile_size = property(_get_tile_size, _set_tile_size)
+    def _set_pix_pos(self, pos):
+        """Set the position by the PIXEL POSITION X,Y with INCLUDED padding AND offset FROM the given PIXEL position. """
+        self.rect.topleft = (pos[0] * (self.tile_size),  # x
+                             pos[1] * (self.tile_size))  # y
+
+        self.depth = 0  # self.rect.midbottom[1] # not used
+
+    pos = property(_get_pix_pos, _set_pix_pos)
+
 
     def move(self, dx, dy):
         """Change the position of the sprite on screen."""
