@@ -361,6 +361,12 @@ def write_stats_window(game):
             label = gamefont.render(attr.name + ": " + str(attr.value), 1, (250,178,250))
             stat_page.blit(label, (200, 50 +i*20))
             i += 1
+    else:
+        label = gamefont.render("No Monster Selected", 1, (199,178,153))
+        stat_page.blit(label, (200, 30))
+        label = gamefont.render("Health: " + "None", 1, (200,100,100))
+        stat_page.blit(label, (200, 50))
+
             
         
 #    else:

@@ -51,8 +51,8 @@ monsters = {
     "goblin": {
         "name": "Goblin",
         "type": "goblin",
-        "tilesheet": "data/monsters_2_x24.png",
-        "tile": (1, 0),
+        "tilesheet": "data/monsters_x24.png",
+        "tile": (3, 0),
         "base_stats": [6, 5, 6, 6, 3, 4, 3],
         "equipment_slots": ["helmet", "torso", "legs", "gloves", "left-hand", "right-hand"],
         "abilities": [MONS_ATTK.HAND1, MONS_ATTK.DART, MONS_ATTK.BOW],
