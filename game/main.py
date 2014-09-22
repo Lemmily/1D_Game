@@ -74,7 +74,6 @@ class Game(object):
         self.sprites = render.SortedUpdates()
         self.tiles = render.SortedUpdates()
         
-        
         self.ap = 0
         
         self.background = pygame.Surface((1024, 768))
@@ -84,7 +83,7 @@ class Game(object):
         self.inv_background.fill(inv_bg_colour)
         
         
-        self.dirties = None #holds the dirty bits for updating when rendered.
+        self.dirties = None #holds the dirty bits for updating when rendered. hehe, dirty bits
         
         
         R.MONSTER_INFO = monsters
@@ -157,7 +156,7 @@ class Game(object):
         if pressed(pg.K_h):
             if entity.use(player, "hp potion"):
                 entity.heal(player, 10)
-                ap = 3 # arbitrary number of ap for potion use
+                ap = 3 #TODO: make potion use an appropriate number - currently an arbitrary number of ap for potion use
                 man_queue.enemy_turns(ap)
                 self.ap += ap
         
@@ -382,7 +381,6 @@ def write_stats_window(game):
 #        stat_page.blit(label, (10, 30))
         
     game.screen.blit(stat_page, (10, 248))
-
 
 def write_ap(game):
     '''

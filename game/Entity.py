@@ -9,7 +9,7 @@ import pygame as pg
 import reg as R
 from random import randint
 
-from Inventory import Inventory
+from inventory import Inventory
 
 import render
 import util
